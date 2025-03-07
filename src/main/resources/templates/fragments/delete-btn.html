@@ -1,0 +1,17 @@
+<div class="block">
+    <button class="btn-sm btn btn-circle btn-outline btn-error"
+            type="button"
+            hx-headers='{"{inject:csrf.headerName}":"{inject:csrf.token}"}'
+
+            hx-delete="{deleteUrl}"
+            hx-target="{cardIdRef}"
+            hx-indicator=".htmx-indicator"
+            hx-disabled-elt="this"
+            hx-trigger="mousedown"
+            hx-swap="delete swap:300ms"
+            {#insert extraAttributes}{/}>
+
+        <svg data-src="/assets/delete-cross.svg" data-cache="21600" class="h-5 w-5">
+        </svg>
+    </button>
+</div>

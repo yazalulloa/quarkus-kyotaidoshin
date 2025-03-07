@@ -1,0 +1,45 @@
+{#include BuildingController/counters totalCount = res.totalCount /}
+
+{#for item in res.results}
+<li id="{item.cardId}"
+    class="w-full rounded-lg text-neutral-content fade-me-out fade-me-in">
+  <div class="flex flex-row flex-nowrap justify-between p-2 items-center gap-4 h-fit w-full
+  {#if inject:PermissionChecker.hasBuildingsWrite}
+      btn btn-outline
+  {#else}
+    border-2
+  {/if}
+">
+
+    {#if inject:PermissionChecker.hasBuildingsWrite}
+    <a role="button"
+       class="flex grow flex-col items-center gap-3 max-w-99per md:grid md:grid-cols-5"
+       href="{uri:BuildingController.edit(item.item.id)}"
+       hx-get="{uri:BuildingController.edit(item.item.id)}"
+       hx-disabled-elt="this"
+       hx-indicator=".htmx-indicator"
+       hx-push-url="true"
+       hx-trigger="click">
+
+      {#include BuildingController/item item = item /}
+    </a>
+    {#else}
+    <div class="flex grow flex-col items-center gap-3 max-w-99per md:grid md:grid-cols-5">
+      {#include BuildingController/item item = item /}
+    </div>
+    {/if}
+
+    {#if inject:PermissionChecker.hasBuildingsWrite}
+    {#let url=uri:BuildingController.delete(item.key)}
+    {#include fragments/delete-btn deleteUrl = url cardIdRef = item.cardIdRef /}
+    {/let}
+    {/if}
+  </div>
+</li>
+{/for}
+
+{#if res.lastKey != null}
+{#let nextPageUrl=uri:BuildingController.search(res.lastKey)}
+{#include fragments/next-page.html url = nextPageUrl /}
+{/let}
+{/if}

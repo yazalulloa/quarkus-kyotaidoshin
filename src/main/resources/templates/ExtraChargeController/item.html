@@ -1,0 +1,53 @@
+<li id="{item.cardId}"
+    class="fade-me-out fade-me-in"
+
+        {#if item.outOfBoundsUpdate}
+            hx-swap-oob="true"
+        {/if}
+>
+    <a class="p-1 extra-charges-grid-item base-grid-cm"
+       x-bind:class="key === '{item.key}' ? 'active' : ''">
+        <div class="extra-charges-grid-content item-grid-cm"
+             @click.prevent="
+            description = '{item.item.description}';
+            amount = '{item.item.amount}';
+            active = {item.item.active};
+            currency = '{item.item.currency}';
+            apt_selected = [{#for apt in item.item.apartments} '{apt.number}',{/for}];
+            key = '{item.key}';
+            is_edit = true;
+            select_all = false;
+            $dispatch('event-extra-charge-building-clean-errors');
+     ">
+            <div class="flex flex-col gap-2">
+                <span>{item.item.description}</span>
+
+              <div class="font-bold badge badge-outline {item.item.type ? 'badge-success' : 'badge-error'}">
+                  {item.item.type}
+              </div>
+
+              <div class="flex flex-row gap-2 text-sm">
+                <span>{item.item.formatTotal}</span>
+                <span>({item.item.apartments.size})</span>
+              </div>
+            </div>
+            <div>{item.item.formatAmount}</div>
+            <div class="flex flex-col items-center gap-1 text-sm">
+                {#for apt in item.item.apartments}
+                    <div class="flex w-full flex-row justify-start gap-2 text-start">
+                        <span class="break-normal">{apt.number}</span>
+                        <span>{apt.name}</span>
+                    </div>
+                {/for}
+            </div>
+        </div>
+      {#let url=uri:ExtraChargeController.delete(item.key)}
+      {#include fragments/delete-btn deleteUrl = url cardIdRef = item.cardIdRef }
+            {#extraAttributes}
+                x-on:htmx:after-request="event.target.dispatchEvent(new CustomEvent('event-extra-charge-building-restart-after-deletion', { bubbles: true, detail: { key: '{item.key}'} }))"
+            {/extraAttributes}
+        {/include}
+      {/let}
+    </a>
+
+</li>

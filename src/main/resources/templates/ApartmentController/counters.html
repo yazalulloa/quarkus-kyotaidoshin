@@ -1,0 +1,11 @@
+{#if dto}
+<div id="apartments-counters" class="fade-me-in fade-me-out" hx-swap-oob="true">
+
+  <span id="apartment-total-count">{m:main.apartments}: {dto.totalCount}</span>
+
+
+  {#if dto.queryCount != null}
+  <span id="apartment-query-count">Items: {dto.queryCount}</span>
+  {/if}
+</div>
+{/if}

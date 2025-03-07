@@ -1,0 +1,87 @@
+{! This is a comment: you can extend the main.html file like this, to give your templates a common style !}
+{#include main.html}
+{! This passes a title parameter to the main template !}
+{#title}{m:main.buildings} {/title}
+
+
+{#headerContainer}
+{#fragment id=headerContainer}
+<title>{m:main.buildings}</title>
+<div class="flex flex-row flex-wrap items-center gap-2 px-2 fade-me-in fade-me-out" id="header-container" hx-swap-oob="true">
+  <div id="buildings-counters"></div>
+
+  {#if inject:PermissionChecker.hasBuildingsWrite}
+  <button class="btn btn-primary"
+          hx-get="{uri:BuildingController.newBuilding}"
+          hx-disabled-elt="this"
+          hx-indicator=".htmx-indicator"
+          hx-push-url="true"
+          hx-swap="none">
+    {m:main.buildings.newBuilding}
+  </button>
+  {/if}
+
+  {#if inject:PermissionChecker.hasBuildingsUploadBackup}
+  <form id="buildings-backup-file-uploader"
+        hx-post="{uri:BuildingController.upload}"
+        hx-encoding='multipart/form-data'
+        hx-disabled-elt="this, #buildings-backup-file-uploader * > input:not([disabled])"
+        hx-swap="none"
+        hx-trigger="send-file"
+        hx-indicator=".htmx-indicator"
+        x-data="{ file: ''}"
+        x-init="$watch('file', (value) => {
+            if (value) {
+              $el.dispatchEvent(new CustomEvent('send-file'));
+            }
+          })">
+
+    <label class="btn btn-outline">
+      {m:main.actions.uploadBackup}
+      <span x-data="{ filename: ''}"
+            x-bind:class="filename === '' ? 'hidden' : ''"
+            x-text="filename"
+            x-init="$watch('file', (value) => {
+            if (value && value.length > 0) {
+              filename = $el.nextElementSibling.files[0].name;
+             } else {
+              filename = '';
+             }
+          })"></span>
+      <input class="hidden"
+             type="file"
+             accept=".json.gz"
+             name="file"
+             x-model="file"
+      />
+    </label>
+
+    {#include fragments/csrf /}
+
+  </form>
+  {/if}
+</div>
+{/fragment}
+{/headerContainer}
+
+
+{#container}
+{#fragment id=container}
+<div id="container" class="flex flex-col gap-1 p-2 fade-me-in fade-me-out" hx-swap-oob="true"
+     x-data="{ currencies: [], expenseTypes: [] }">
+ <ul>
+   <div hx-get="{uri:BuildingController.search}"
+        hx-indicator=".htmx-indicator"
+        hx-trigger="load"
+        hx-swap="outerHTML">
+
+   </div>
+ </ul>
+  <div>
+    <img class="htmx-indicator white-filter img-medium-size center" src="/assets/bars.svg" alt="spinner">
+  </div>
+</div>
+{/fragment}
+{/container}
+
+{/include}

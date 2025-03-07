@@ -1,0 +1,83 @@
+<div id="progress-receipts" class="w-full text-center" hx-swap-oob="beforeend">
+  <div id="sse-receipt-progress-bar-{clientId}"
+       class="flex w-full flex-row items-center justify-center gap-2 pb-2 text-center text-base font-bold fade-out-element"
+       x-data="{
+        building: '',
+        month: '',
+        date: '',
+        counter: null,
+        size: null,
+        error: '',
+        apt: '',
+        aptName: '',
+        from: '',
+        to: ''
+    }">
+    <div class="h-1 w-1"></div>
+
+    <div class="flex flex-col gap-1 w-[80%]">
+      <div hx-ext="sse"
+           sse-connect="{uri:SseController.consume(clientId)}"
+           sse-swap="receipt-progress"
+           sse-close="receipt-progress-close"
+           x-init="$dispatch('event-receipt-send-dialog-close');">
+        <label class="flex-col gap-4 label">
+          <span class="text-center text-base font-bold label-text">{m:main.receipts.searchData}</span>
+          <progress class="progress"></progress>
+        </label>
+      </div>
+
+      <template x-if="building && building !== ''">
+        <div class="flex w-full flex-row justify-center gap-2">
+          <span x-text="building"></span>
+          <span x-text="month"></span>
+          <span x-text="date"></span>
+
+          <div>
+            <span x-text="counter"></span>
+            <span>/</span>
+            <span x-text="size"></span>
+          </div>
+        </div>
+      </template>
+
+      <template x-if="error !== ''">
+        <span class="text-center" x-text="error"></span>
+      </template>
+
+      <template x-if="apt && apt !== ''">
+        <div class="flex w-full flex-row justify-center gap-2">
+          <div>
+            <span>APT: </span>
+            <span x-text="apt"></span>
+            <span x-text="aptName"></span>
+          </div>
+          <div>
+            <span x-text="from"></span>
+            <span> -> </span>
+            <span x-text="to"></span>
+          </div>
+        </div>
+      </template>
+
+      <template x-if="counter">
+        <progress class="duration-500 progress transition-[width]"
+                  x-bind:value="counter"
+                  x-bind:max="size">
+        </progress>
+      </template>
+    </div>
+    <button class="btn-sm btn btn-circle btn-outline"
+            type="button"
+            hx-headers='{"{inject:csrf.headerName}":"{inject:csrf.token}"}'
+            hx-delete="{uri:ReceiptController.cancelSending(clientId)}"
+            hx-disabled-elt="this"
+            hx-trigger="click"
+            hx-swap="none"
+      {#insert extraAttributes}{/}>
+
+      <svg data-src="/assets/delete-cross.svg" data-cache="21600" class="h-5 w-5">
+      </svg>
+    </button>
+  </div>
+</div>

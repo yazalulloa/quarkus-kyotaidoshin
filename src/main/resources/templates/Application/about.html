@@ -1,0 +1,26 @@
+{#include main.html }
+{#title}About Todos{/title}
+
+<div class="row">
+  <div class="col-lg-4">
+    <h2>Load on your mobile phone</h2>
+    <p>
+      {#let uri = uriabs:Application.index}
+      {#qrcode uri.toString()/}
+      {/let}
+    </p>
+  </div>
+  <div class="col-lg-4">
+    <h2>Super cool</h2>
+    <p>
+      Yay!.
+    </p>
+  </div>
+  <div class="col-lg-4">
+    <h2>Super cool</h2>
+    <p>
+      Yay!.
+    </p>
+  </div>
+</div>
+{/include}

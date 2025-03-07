@@ -1,0 +1,138 @@
+<div id="receipt-tabs" hx-swap-oob="true"
+     x-data="{
+  allVisible: true,
+  selected: '{dto.building.id}'
+        }"
+     x-init="
+     addEventListener('resize', () => {
+         allVisible = true;
+      });
+     "
+     x-effect="$dispatch('event-receipt-tab-selected', { selected })"
+     class="flex flex-col gap-1">
+
+  <div class="flex flex-row justify-center w-full text-center items-center h-12 [&>*]:h-full">
+    <button class="btn btn-square btn-neutral rounded-none rounded-l-lg text-xl w-12"
+            x-show="!allVisible"
+            @click.prevent="$el.nextElementSibling.scrollLeft -= 300">
+      «
+    </button>
+    <div class="carousel [&>*]:h-full"
+         @mouseover="
+       if (!allVisible) {
+         document.body.classList.add('noYScroll');
+       }
+       "
+         @mouseout="document.body.classList.remove('noYScroll')"
+         x-init="
+        $el.addEventListener('wheel', (event) => {
+            $el.scrollBy({
+                left: event.deltaY > 0 ? -400 : 400,
+                behavior: 'smooth'
+                });
+          }, {
+            passive: true
+        });
+            ">
+      <button class="carousel-item btn btn-square btn-neutral rounded-none w-fit px-2"
+              x-bind:class="[
+              selected === '{dto.building.id}' ? 'btn-active' : '',
+              allVisible ? 'rounded-l-lg' : ''
+              ]"
+              @click="selected = '{dto.building.id}'"
+              x-init="$nextTick(() => {
+                let isVisible = elementIsVisibleInViewport($el);
+                if (!isVisible) {
+                  allVisible = false;
+                }
+
+                addEventListener('resize', () => {
+                  let isVisible = elementIsVisibleInViewport($el);
+                 if (!isVisible) {
+                  allVisible = false;
+                }
+                });
+              });">
+        <nobr class="text-lg">
+          {dto.building.id}
+        </nobr>
+      </button>
+
+      {#each dto.apartmentRecords}
+      <button class="carousel-item btn btn-square btn-neutral rounded-none w-16"
+              @click="selected = '{it.apartment.number}'"
+              x-bind:class="[
+               selected === '{it.apartment.number}' ? 'btn-active' : '',
+               {#if it_isLast}
+                  allVisible ? 'rounded-r-lg' : '',
+              {/if}
+               ]"
+              x-init="$nextTick(() => {
+                let isVisible = elementIsVisibleInViewport($el);
+                if (!isVisible) {
+                  allVisible = false;
+                }
+
+                addEventListener('resize', () => {
+                  let isVisible = elementIsVisibleInViewport($el);
+                 if (!isVisible) {
+                  allVisible = false;
+                }
+                });
+              });">
+        <nobr class="text-lg">
+          {it.apartment.number}
+        </nobr>
+      </button>
+      {/each}
+
+    </div>
+    <button class="btn btn-square btn-neutral rounded-none rounded-r-lg text-xl w-12"
+            x-show="!allVisible"
+            @click.prevent="
+       $el.previousElementSibling.scrollLeft += 300;
+       ">
+      »
+    </button>
+  </div>
+
+  <div>
+
+    <a x-show="selected === '{dto.building.id}'" x-transition.scale.origin.bottom
+       class="link"
+       href="{uri:ReceiptViewController.buildingPdf(dto.building.id, dto.receipt.id)}"
+       download="{dto.building.id}_{dto.monthStr}_{dto.date}.pdf">
+      {m:main.action.downloadPdf} - {dto.building.id}
+    </a>
+
+    {#for apt in dto.apartmentRecords}
+    <a x-show="selected === '{apt.apartment.number}'" x-transition.scale.origin.bottom
+       class="link"
+       href="{uri:ReceiptViewController.aptPdf(dto.building.id, dto.receipt.id, apt.apartment.number)}"
+       download="{dto.building.id}_{dto.monthStr}_{dto.date}_{apt.apartment.number}.pdf">
+      {m:main.action.downloadPdf} - {apt.apartment.number}
+    </a>
+    {/for}
+  </div>
+</div>
+
+
+<div class="p-2" x-data="{
+  selected: '{dto.building.id}'
+}" @event-receipt-tab-selected.window="selected = $event.detail?.selected;">
+
+  <div x-show="selected === '{dto.building.id}'" x-transition.scale.origin.bottom>
+    <div class="bg-white px-6 py-2 text-black">
+      {#include ReceiptViewController/building dto=dto /}
+    </div>
+  </div>
+
+  {#for apt in dto.apartmentRecords}
+  <div x-show="selected === '{apt.apartment.number}'" x-transition.scale.origin.bottom>
+    <div class="bg-white px-6 py-2 text-black">
+      {#include ReceiptViewController/apt dto=dto apartment=apt /}
+    </div>
+  </div>
+  {/for}
+
+</div>

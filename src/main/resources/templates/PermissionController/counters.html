@@ -1,0 +1,11 @@
+{#if dto}
+<div id="permissions-counters" class="fade-me-in fade-me-out" hx-swap-oob="true">
+
+  <span id="permissions-total-count">{m:main.permissions}: {dto.totalCount}</span>
+
+
+  {#if dto.queryCount != null}
+  <span id="permissions-query-count">Items: {dto.queryCount}</span>
+  {/if}
+</div>
+{/if}

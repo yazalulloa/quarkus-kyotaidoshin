@@ -1,0 +1,156 @@
+{#include ReceiptController/counters dto=res.countersDto /}
+
+{#for item in res.results}
+
+<li
+    class="hover:bg-[#00000014] flex flex-row text-center items-center justify-between fade-me-out fade-me-in"
+
+    id="{item.cardId}">
+
+
+  <div class="h-full flex-auto grow p-2 receipt-grid-container"
+
+    {#if inject:PermissionChecker.hasReceiptsWrite}
+       hx-get="{uri:ReceiptController.edit(item.key)}"
+       hx-disabled-elt="this"
+       hx-indicator=".htmx-indicator"
+       hx-push-url="true"
+       hx-trigger="dblclick"
+    {/if}
+  >
+
+    <span>{item.item.buildingId}</span>
+
+    <div class="flex flex-row justify-center gap-2">
+      <span>{cdi:i18NService.month(item.item.month)} </span>
+      <span>{item.item.year}</span>
+    </div>
+
+    <span>{item.item.date}</span>
+
+    {#include ReceiptController/sentInfo item = item /}
+
+    {#if item.item.createdAt}
+    <span>{item.item.createdAt.formatDate}</span>
+    {/if}
+  </div>
+
+
+  <div class="grow-0 dropdown dropdown-left">
+    <label tabindex="0" class="btn btn-ghost btn-circle">
+      <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+            d="M13 5C13 4.44772 12.5523 4 12 4C11.4477 4 11 4.44772 11 5C11 5.55228 11.4477 6 12 6C12.5523 6 13 5.55228 13 5Z"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path
+            d="M13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13C12.5523 13 13 12.5523 13 12Z"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path
+            d="M13 19C13 18.4477 12.5523 18 12 18C11.4477 18 11 18.4477 11 19C11 19.5523 11.4477 20 12 20C12.5523 20 13 19.5523 13 19Z"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </label>
+    <ul tabindex="0"
+        class="z-10 mt-3 w-52 gap-2 border-current p-2 shadow-sm menu menu-sm dropdown-content bg-base-100 rounded-box border-[1px]">
+
+      {#if inject:PermissionChecker.hasReceiptsWrite}
+      <li>
+        <a hx-delete="{uri:ReceiptController.delete(item.key)}"
+           hx-headers='{"{inject:csrf.headerName}":"{inject:csrf.token}"}'
+           hx-include="[name='date_input'],[name='building_input'],[name='month_input']"
+           hx-target="{item.cardIdRef}"
+           hx-indicator=".htmx-indicator"
+           hx-trigger="click"
+           hx-swap="delete swap:300ms">
+          <img class="h-6 w-6" src="/assets/trash.svg" alt="delete-item">
+          {m:main.action.delete}
+        </a>
+      </li>
+
+      {/if}
+      <li>
+        <a hx-get="{uri:ReceiptViewController.zip(item.key)}"
+           hx-disabled-elt="this"
+           hx-indicator=".htmx-indicator"
+           hx-swap="none">
+          <img src="/assets/pdf-logo.svg" class="h-6 w-6" alt="download-zip-pdfs">
+          {m:main.receipts.action.downloadZip}
+        </a>
+      </li>
+      <li>
+        <a href="{uri:ReceiptViewController.index(item.key)}"
+           hx-get="{uri:ReceiptViewController.index(item.key)}"
+           hx-disabled-elt="this"
+           hx-push-url="true"
+           hx-indicator=".htmx-indicator"
+           hx-swap="none">
+          <img src="/assets/pdf-logo.svg" class="h-6 w-6" alt="download-zip-pdfs">
+          {m:main.receipts.action.seeReceipts}
+        </a>
+      </li>
+
+      {#if false}
+      <li class="hidden">
+        <a @click.prevent="zip_dialog_receipt_key='{item.key}'; zip_dialog_building='{item.item.buildingId}';
+        zip_dialog_year='{item.item.year}'; zip_dialog_month='{cdi:i18NService.month(item.item.month)}'; zip_dialog_date='{item.item.date}';
+        $dispatch('event-receipt-zip-dialog-open');
+        ">
+          <svg data-src="/assets/send-mail.svg" class="h-6 w-6"></svg>
+          {m:main.receipts.action.sendZip}
+        </a>
+      </li>
+      {/if}
+      <li>
+        <a hx-get="{uri:ReceiptController.startSendReceipts(item.key)}"
+           hx-indicator=".htmx-indicator"
+           hx-disabled-elt="this"
+           hx-swap="none">
+          <svg data-src="/assets/send-mail.svg" class="h-6 w-6"></svg>
+          {m:main.receipts.action.sendNow}
+        </a>
+      </li>
+      <li>
+        <a @click.prevent="send_dialog_receipt_key='{item.key}'; send_dialog_building='{item.item.buildingId}'; send_dialog_year='{item.item.year}';
+          send_dialog_month='{cdi:i18NService.month(item.item.month)}'; send_dialog_date='{item.item.date}';
+          $dispatch('event-receipt-send-dialog-open')
+          ">
+          <svg data-src="/assets/send-mail.svg" class="h-6 w-6"></svg>
+          {m:main.receipts.action.send}
+        </a>
+      </li>
+      {#if inject:PermissionChecker.hasReceiptsWrite}
+      <li>
+        <a hx-get="{uri:ReceiptController.copy(item.key)}"
+           hx-indicator=".htmx-indicator"
+           hx-disabled-elt="this"
+           hx-swap="none">
+          <svg data-src="/assets/edit_icon.svg" class="h-6 w-6"></svg>
+          {m:main.receipts.action.copy}
+        </a>
+      </li>
+      <li>
+        <a href="{uri:ReceiptController.edit(item.key)}"
+           hx-get="{uri:ReceiptController.edit(item.key)}"
+           hx-disabled-elt="this"
+           hx-indicator=".htmx-indicator"
+           hx-push-url="true">
+          <svg data-src="/assets/edit_icon.svg" class="h-6 w-6"></svg>
+          {m:main.action.edit}
+        </a>
+      </li>
+      {/if}
+    </ul>
+  </div>
+
+</li>
+{/for}
+
+{#if res.lastKey != null}
+{#let nextPageUrl=uri:ReceiptController.search(res.lastKey)}
+{#include fragments/next-page.html url = nextPageUrl}
+{#extraAttributes}
+hx-include="[name='date_input'],[name='building_input'],[name='month_input']"
+{/extraAttributes}
+{/include}
+{/let}
+{/if}

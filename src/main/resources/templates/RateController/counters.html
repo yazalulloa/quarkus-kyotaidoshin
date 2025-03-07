@@ -1,0 +1,12 @@
+
+{#if dto}
+<div id="rates-counters" class="fade-me-in fade-me-out" hx-swap-oob="true">
+
+  <span id="rates-total-count">{m:main.rates}: {dto.totalCount}</span>
+
+
+  {#if dto.queryCount != null}
+  <span id="rates-query-count">Items: {dto.queryCount}</span>
+  {/if}
+</div>
+{/if}

@@ -1,0 +1,20 @@
+
+<div
+    x-init="buildingError='{dto.buildingError}'; numberError='{dto.numberError}'; nameError='{dto.nameError}'; aliquotError='{dto.aliquotError}';
+generalError='{dto.generalError}';
+
+{#if dto.isSuccess}
+$dispatch('event-close-apt-modal');
+
+{#if dto.item == null}
+sendEvent('apt-search-input', 'event-new_apt');
+{/if}
+{/if}
+
+">
+
+</div>
+
+{#if dto.item}
+{#include ApartmentController/item item=dto.item /}
+{/if}

@@ -1,0 +1,10 @@
+{#if url}
+<div hx-get="{url}"
+     hx-trigger="revealed"
+     hx-target="this"
+     hx-indicator=".htmx-indicator"
+     hx-swap="outerHTML"
+  {#insert extraAttributes}{/}
+>
+</div>
+{/if}

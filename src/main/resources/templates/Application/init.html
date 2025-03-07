@@ -1,0 +1,106 @@
+<ul tabindex="0"
+    class="z-20 mt-3 w-52 border-current p-2 shadow-sm menu menu-sm dropdown-content bg-base-100 rounded-box border-[1px]"
+     x-data="{
+        nav_selected: null,
+        navs: [
+
+{#each res.pages}
+  {
+    id: '{it.id}',
+    url: '{it.url}',
+    text: '{it.text}',
+  }
+  {#if it_hasNext}, {/if}
+  {/each}
+        ]
+        }"
+
+    {#if res.shouldRoute}
+
+    x-init="
+$nextTick(async () => {
+            await sleep(50);
+            let pathname = window.location.pathname;
+
+            if (pathname === '/' || pathname === '/index.html' || pathname === '') {
+              let savedNav = localStorage.getItem('current-nav');
+              if (savedNav) {
+
+               navs.forEach((nav) => {
+                 if (nav.id === savedNav) {
+                  nav_selected = savedNav;
+                 }
+               });
+
+               if (nav_selected === null) {
+                 localStorage.removeItem('current-nav');
+                 nav_selected = navs[0].id;
+               }
+
+              } else {
+                nav_selected = navs[0].id;
+              }
+
+            }
+            else {
+
+              navs.forEach((nav) => {
+                if (nav.url ===  pathname
+                || nav.url === (pathname + '/')) {
+                  nav_selected = nav.id;
+                }
+              });
+
+            }
+            $el.removeAttribute('x-init');
+
+            })
+
+"
+    {#else}
+    x-init="
+let path = window.location.pathname
+
+if (path !== '/') {
+  navs.forEach((nav) => {
+    if (nav.url ===  path
+    || nav.url === (path + '/')) {
+      nav_selected = nav.id;
+    }
+  });}
+  $el.removeAttribute('x-init');
+"
+    {/if}
+
+     x-effect="
+            if (nav_selected) {
+              document.getElementById(nav_selected)?.dispatchEvent(new CustomEvent('navigate'));
+            }
+            "
+>
+  
+
+  <template x-for="nav in navs">
+    <li>
+      <a class="uppercase"
+          x-bind:href="nav.url"
+          x-text="nav.text"
+          :class="!(nav.id === nav_selected) || 'active'"
+          x-bind:id="nav.id"
+          x-bind:hx-get="nav.url"
+          hx-push-url="true"
+          hx-target="#container"
+          hx-indicator=".htmx-indicator"
+          hx-trigger="navigate"
+          @click.prevent="nav_selected = nav.id; localStorage.setItem('current-nav', nav.id)"
+          hx-swap="innerHTML">
+      </a>
+    </li>
+
+  </template>
+
+</ul>
+
+
+
+<img id="user-picture" hx-swap-oob="true" src="{res.picture}" alt="Avatar" class="h-8 w-8 rounded-full" referrerpolicy="no-referrer">

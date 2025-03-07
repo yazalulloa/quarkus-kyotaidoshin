@@ -1,0 +1,53 @@
+{#include RateController/counters dto = res.countersDto /}
+
+{#for item in res.results}
+
+<details id="{item.cardId}" class="fade-me-in fade-me-out">
+  <summary>
+    <div class="content hover:bg-[#00000014] border-solid p-0.5
+  {#if inject:PermissionChecker.hasRatesWrite}
+      grid-cols-6
+  {#else}
+      grid-cols-5
+  {/if}
+     base-grid-cm fade-me-out fade-me-in">
+      <span>{item.item.id}</span>
+      <div class="flex flex-row justify-center gap-1">
+        <svg data-src="/assets/images/flags/{item.item.fromCurrency.toLowerCase}.svg" data-cache="21600" class="h-7 w-8"></svg>
+        <div class="w-8">{item.item.fromCurrency}</div>
+      </div>
+      <div>{item.item.rate.toDouble}</div>
+      <span>{item.item.dateOfRate}</span>
+      <span>{item.item.dateOfFile}</span>
+
+      {#if inject:PermissionChecker.hasRatesWrite}
+      {#let url=uri:RateController.delete(item.key)}
+      {#include fragments/delete-btn deleteUrl = url cardIdRef = item.cardIdRef}
+      {#extraAttributes}
+      hx-include="[name='date_input'],[name='currency_input'],[name='sort_order']"
+      {/extraAttributes}
+      {/include}
+      {/let}
+      {/if}
+
+    </div>
+  </summary>
+  <div class="flex flex-row justify-center gap-2 border-b-2 p-2">
+    <span>Hash: {item.item.hash}</span>
+    <span>Etag: {item.item.etag}</span>
+    <span>Last-Modified: {item.item.lastModified}</span>
+  </div>
+
+</details>
+
+{/for}
+
+{#if res.lastKey != null}
+{#let nextPageUrl=uri:RateController.search(res.lastKey)}
+{#include fragments/next-page.html url = nextPageUrl}
+{#extraAttributes}
+hx-include="[name='date_input'],[name='currency_input'],[name='sort_order']"
+{/extraAttributes}
+{/include}
+{/let}
+{/if}

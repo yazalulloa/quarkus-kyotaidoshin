@@ -1,0 +1,46 @@
+{! This is a comment: you can extend the main.html file like this, to give your templates a common style !}
+{#include main.html}
+{! This passes a title parameter to the main template !}
+{#title}{receipt.buildingId} {cdi:i18NService.month(receipt.month).toUpperCase} {receipt.date} {/title}
+
+
+{#headerContainer}
+{#fragment id=headerContainer}
+<title>{receipt.buildingId} {cdi:i18NService.month(receipt.month).toUpperCase} {receipt.date}</title>
+<div class="flex flex-col gap-1 fade-me-in fade-me-out" id="header-container" hx-swap-oob="true">
+  <div class="flex flex-row flex-wrap items-center gap-2 px-2">
+
+    {#include fragments/backBtn backUrl = uri:ReceiptController.index /}
+
+    <h1 class="font-bold">{receipt.buildingId} {cdi:i18NService.month(receipt.month).toUpperCase} {receipt.date}</h1>
+    <button class="btn btn-primary"
+            hx-get="{uri:ReceiptViewController.zip(id)}"
+            hx-disabled-elt="this"
+            hx-indicator=".htmx-indicator"
+            hx-swap="none">
+      {m:main.action.downloadZip}
+    </button>
+  </div>
+  <div id="receipt-tabs">
+
+  </div>
+</div>
+{/fragment}
+{/headerContainer}
+
+
+{#container}
+{#fragment id=container}
+<div id="container" class="pt-2 fade-me-in fade-me-out" hx-swap-oob="true">
+
+  <div hx-get="{uri:ReceiptViewController.views(id)}"
+       hx-indicator=".htmx-indicator"
+       hx-trigger="load"
+       hx-swap="outerHTML">
+
+  </div>
+</div>
+{/fragment}
+{/container}
+
+{/include}

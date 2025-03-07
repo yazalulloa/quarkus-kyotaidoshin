@@ -1,0 +1,5 @@
+<span id="reserve-funds-form-counter" class="fade-me-in fade-me-out" hx-swap-oob="true">{dto.count}</span>
+
+{#if dto.expenseCountersDto}
+{#include ExpenseController/counters dto = dto.expenseCountersDto /}
+{/if}

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AVISO DE COBRO {dto.building.name} {apartment.apartment.number} {dto.monthStr.toUpperCase} {dto.receipt.date}</title>
+  <style>
+    /* Override page size, and set page margin */
+    @page {
+      margin: 0.25cm;
+    }
+
+    @media print {
+      .receipt-body {
+        font-size: 10pt;
+      }
+
+      .content-receipt {
+        page-break-inside: avoid;
+      }
+    }
+
+    .receipt-table {
+      width: 100%;
+      text-align: center;
+    }
+
+    .receipt-body {
+      background-color: white;
+      color: black;
+      padding: 0;
+    }
+
+    .row-left-content {
+      text-align: left;
+    }
+
+    .row-right-content {
+      text-align: right;
+    }
+
+    .caption-padding {
+      padding: 0.5rem
+    }
+
+    .title-center {
+      text-align: center
+    }
+
+    .table-reserve-fund {
+      max-width: 100%;
+      white-space: nowrap;
+    }
+
+  </style>
+</head>
+<body>
+<div class="receipt-body">
+
+  <h4 class="title-center"><strong>AVISO DE COBRO</strong></h4>
+  <p>{dto.building.name}</p>
+  <p>{dto.building.rif}</p>
+  <p>MES A PAGAR: {dto.monthStr.toUpperCase}</p>
+  <p>{dto.receipt.date}</p>
+  <p>PROPIETARIO: {apartment.apartment.name}</p>
+  <p>APT: {apartment.apartment.number}</p>
+
+  {#for amount in apartment.amounts}
+  {#if dto.building.currenciesToShowAmountToPay.contains(amount.currency)}
+  <p>VALOR RECIBO: {amount.format}</p>
+  {/if}
+  {/for}
+
+  {#if !dto.building.fixedPay}
+  {#if dto.building.currenciesToShowAmountToPay.contains("USD") && dto.building.currenciesToShowAmountToPay.contains("VED")}
+  <p>TASA DE CAMBIO AL DÍA {dto.rate.fromCurrency} {dto.rate.dateOfRate}: {dto.rate.formatRate}</p>
+  {/if}
+  <p>ALÍQUOTA: {apartment.apartment.aliquot}</p>
+  {/if}
+
+  <br></br>
+
+  <div class="content-receipt">
+    <table class="receipt-table">
+      <caption class="caption-padding"><strong>GASTOS COMUNES</strong></caption>
+      <thead>
+      <tr>
+        <th>DESCRIPCIÓN</th>
+        <th>MONTO</th>
+      </tr>
+      </thead>
+      <tbody>
+      {#for expense in dto.expenses}
+      <tr>
+        {#if expense.type == ExpenseType:COMMON}
+        <td class="row-left-content">{expense.description}</td>
+        <td class="row-right-content">{expense.formatAmount}</td>
+        {/if}
+
+      </tr>
+      {/for}
+      </tbody>
+    </table>
+    <br></br>
+    <p class="row-right-content"><strong>TOTAL GASTOS COMUNES: {dto.formatTotalCommonExpenses}</strong></p>
+
+    <br></br>
+  </div>
+
+  <div class="content-receipt">
+    <table class="receipt-table">
+      <caption class="caption-padding"><strong>GASTOS NO COMUNES</strong></caption>
+      <thead>
+      <tr>
+        <th>DESCRIPCIÓN</th>
+        <th>MONTO</th>
+      </tr>
+      </thead>
+      <tbody>
+      {#for expense in dto.expenses}
+      <tr>
+        {#if expense.type == ExpenseType:UNCOMMON}
+        <td class="row-left-content">{expense.description}</td>
+        <td class="row-right-content"> {expense.formatAmount}</td>
+        {/if}
+
+      </tr>
+      {/for}
+      </tbody>
+    </table>
+    <br></br>
+    <p class="row-right-content"><strong>TOTAL GASTOS NO COMUNES: {dto.formatTotalUnCommonExpenses}</strong></p>
+
+    <br></br>
+  </div>
+
+  {#if !apartment.extraCharges.isEmpty}
+  <div class="content-receipt">
+    <table class="receipt-table">
+      <caption class="caption-padding"><strong>CARGOS EXTRA</strong></caption>
+      <thead>
+      <tr>
+        <th>DESCRIPCIÓN</th>
+        <th>MONTO</th>
+      </tr>
+      </thead>
+      <tbody>
+      {#for extraCharge in apartment.extraCharges}
+      <tr>
+        <td>{extraCharge.description}</td>
+        <td>{extraCharge.formatAmount}</td>
+      </tr>
+      {/for}
+      </tbody>
+    </table>
+
+    <br></br>
+  </div>
+  {/if}
+
+  <div class="content-receipt">
+    <table class="receipt-table table-reserve-fund">
+      <caption class="caption-padding"><strong>MES DE {dto.monthStr.toUpperCase}
+        /{dto.year}</strong></caption>
+      <thead>
+      <tr>
+        <th class="row-left-content">PATRIMONIO</th>
+        <th class="row-right-content">+FACT.MES.ANT</th>
+        {#if dto.thereIsReserveFundExpense}
+        <th class="row-right-content">CARGOS</th>
+        {/if}
+        <th class="row-right-content">+FAC.MES.ACT</th>
+        <th class="row-right-content">SALDO/MES</th>
+      </tr>
+      </thead>
+      <tbody>
+      {#for fund in dto.reserveFundFormatteds}
+      <tr>
+        <td class="row-left-content">{fund.name}</td>
+        <td class="row-right-content">{fund.fundFormatted}</td>
+        {#if dto.thereIsReserveFundExpense}
+        <td class="row-right-content">{fund.expenseFormatted}</td>
+        {/if}
+        <td class="row-right-content">{fund.amountToPay}</td>
+        <td class="row-right-content">{fund.newReserveFund}</td>
+      </tr>
+      {/for}
+      </tbody>
+    </table>
+
+    <br></br>
+  </div>
+
+  <div class="content-receipt">
+    <table class="receipt-table">
+      <caption class="caption-padding"><strong>DEUDAS</strong></caption>
+      <thead>
+      <tr>
+        <th class="row-left-content">APTO</th>
+        <th class="row-left-content">PROPIETARIO</th>
+        <th class="row-right-content">RECIBOS</th>
+        <th class="row-right-content">DEUDA</th>
+        <th>DESCRIPCIÓN</th>
+        <th class="row-right-content">ABONO</th>
+      </tr>
+      </thead>
+      <tbody>
+      {#for debt in dto.debts}
+      <tr>
+        <td class="row-left-content">{debt.aptNumber}</td>
+        <td class="row-left-content">{debt.name}</td>
+        <td class="row-right-content">{debt.receipts}</td>
+        <td class="row-right-content">{debt.formatAmount}</td>
+        <td>{debt.monthStr}</td>
+        <td class="row-right-content">{debt.formatPreviousPaymentAmount}</td>
+      </tr>
+      {/for}
+      </tbody>
+
+    </table>
+    <br></br>
+    <p>NÚMERO DE RECIBOS: {dto.debtReceiptsAmount}</p>
+    <p>DEUDA TOTAL: {dto.totalDebtFormatted}</p>
+  </div>
+
+
+</div>
+</body>
+</html>

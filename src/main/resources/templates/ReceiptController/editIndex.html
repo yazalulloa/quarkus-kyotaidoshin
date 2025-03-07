@@ -1,0 +1,51 @@
+{! This is a comment: you can extend the main.html file like this, to give your templates a common style !}
+{#include main.html}
+{! This passes a title parameter to the main template !}
+{#title}{m:main.receipts.title.edit}{/title}
+
+
+{#headerContainer}
+{#fragment id=headerContainer}
+<title>{m:main.receipts.title.edit}</title>
+<div class="flex flex-row items-center justify-between p-2 px-6 text-center bg-base-100 fade-me-in fade-me-out"
+     id="header-container" hx-swap-oob="true">
+
+  {#include fragments/backBtn backUrl = uri:ReceiptController.index /}
+
+  <h2><strong>{m:main.receipts.title.edit}</strong></h2>
+  <div>
+
+  </div>
+</div>
+{/fragment}
+{/headerContainer}
+
+{#container}
+{#fragment id=container}
+<div id="container" hx-swap-oob="true" class="h-full p-4"
+     x-data="{ buildingName: '', currencies: [], expenseTypes: []}">
+
+  {#include FragmentController/currencyData /}
+
+  {#include FragmentController/expenseTypes /}
+
+  <div class="flex justify-center">
+    <h3 x-text="buildingName"></h3>
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <div hx-get="{uri:ReceiptController.form(id)}"
+         hx-disabled-elt="this"
+         hx-indicator=".htmx-indicator"
+         hx-trigger="load"
+         hx-swap="outerHTML">
+      <img class="htmx-indicator white-filter img-medium-size center" src="/assets/bars.svg" alt="spinner">
+    </div>
+  </div>
+
+</div>
+{/fragment}
+{/container}
+
+
+{/include}

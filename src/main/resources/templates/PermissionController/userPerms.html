@@ -1,0 +1,29 @@
+
+<div class="grid grid-cols-2 gap-1 lg:grid-cols-3">
+  {#each GLO_ALL_PERM_TYPES}
+  <div x-data="{
+            select_all : false
+             }">
+    <label class="cursor-pointer justify-start gap-4 label">
+      <span class="text-lg label-text bold">{inject:i18n.getMessage(it.label)}</span>
+      <input type="checkbox" class="toggle"
+             @click="select_all=!select_all"
+      />
+    </label>
+    {#each it.perms}
+ <div class="p-2 form-control">
+   <label class="cursor-pointer justify-start gap-4 p-0 label active:animate-bounce">
+     <input type="checkbox" class="checkbox" name="perms" value="{it}"
+            x-init="$watch('select_all', value => { $el.checked = value })"
+       {#if permissions.contains(it)}
+            checked
+       {/if}
+     />
+     <span class="label-text">{it}</span>
+   </label>
+ </div>
+    {/each}
+
+  </div>
+  {/each}
+</div>

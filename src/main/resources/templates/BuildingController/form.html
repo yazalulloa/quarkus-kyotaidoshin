@@ -1,0 +1,235 @@
+<div class="flex flex-col gap-4"
+     x-data="{
+    apts: [
+{#for item in dto.apts}
+{ number: '{item.number}',name: '{item.name}',},
+{/for}
+]
+    }">
+
+  {#include FragmentController/currencyData /}
+  {#include FragmentController/expenseTypes /}
+  {#include FragmentController/reserveFundTypes /}
+
+  <form id="buildings-form"
+        class="m-auto flex w-fit flex-col gap-4 align-middle min-w-3/5"
+        hx-put="{uri:BuildingController.upsert}"
+        hx-disabled-elt="this, #buildings-form * > input:not([disabled]), #buildings-form * > button:not([disabled]), #buildings-form * > select:not([disabled])"
+        hx-indicator=".htmx-indicator"
+        hx-target="#building-form-error"
+        hx-swap="innerHTML"
+        x-data="{ is_edit: {dto.isEdit}, key: null, buildingId: '', buildingIdError: '', buildingName: '', buildingNameError: '',
+        buildingRif: '', buildingRifError: '', mainCurrency: '', debtCurrency: '',
+        currenciesToShowAmountToPay: [], fixedPay: false, fixedPayAmount: '', fixedPayAmountError: '',
+         roundUpPayments: false, emailConfigId: '', generalFieldError: '' }"
+        @event-building-form-errors-reset="
+        buildingIdError = '';
+        buildingNameError = '';
+        buildingRifError = '';
+        fixedPayAmountError = '';
+        generalFieldError = '';
+      "
+
+        x-init="
+
+is_edit = {dto.isEdit};
+
+buildingId = '{dto.id}';
+buildingName = '{dto.name}';
+buildingRif = '{dto.rif}';
+mainCurrency = '{dto.mainCurrency}';
+debtCurrency = '{dto.debtCurrency}';
+currenciesToShowAmountToPay = {dto.currenciesToShowAmountToPay};
+fixedPay = {dto.fixedPay};
+{#if dto.fixedPayAmount}
+fixedPayAmount = {dto.fixedPayAmount};
+{/if}
+roundUpPayments = {dto.roundUpPayments};
+{#if dto.emailConfigId}
+emailConfigId = '{dto.emailConfigId}';
+{/if}
+{#if dto.key}
+key = '{dto.key}';
+{/if}
+
+
+">
+      <div id="building-form-error" hidden="hidden"></div>
+
+    <input hidden="hidden" name="key" x-model="key">
+
+    <label class="w-full form-control">
+      <div class="label">
+        <span class="label-text">ID</span>
+      </div>
+      <input required placeholder="ID" class="w-full input input-bordered" name="id"
+             maxlength="20"
+             x-init="limitInputToMaxLength($el)"
+             min="1"
+             x-model="buildingId"
+             x-bind:disabled="is_edit"/>
+      <div class="label">
+        <span class="label-text-alt error-message" x-text="buildingIdError"></span>
+      </div>
+    </label>
+
+    <label class="w-full form-control">
+      <div class="label">
+        <span class="label-text">Nombre</span>
+      </div>
+      <input required placeholder="Nombre" class="w-full input input-bordered" name="name"
+             maxlength="100"
+             x-init="limitInputToMaxLength($el)"
+             x-model="buildingName"/>
+      <div class="label">
+        <span class="label-text-alt error-message" x-text="buildingNameError"></span>
+      </div>
+    </label>
+
+    <label class="w-full form-control">
+      <div class="label">
+        <span class="label-text">RIF</span>
+      </div>
+      <input placeholder="RIF" class="w-full input input-bordered" name="rif"
+             maxlength="20"
+             x-init="limitInputToMaxLength($el)"
+             x-model="buildingRif"/>
+      <div class="label">
+        <span class="label-text-alt error-message" x-text="buildingRifError"></span>
+      </div>
+    </label>
+
+    <div class="flex flex-wrap justify-center gap-8">
+      <label class="form-control">
+        <div class="label">
+          <span class="label-text">Moneda Principal</span>
+        </div>
+        <select x-ref="buildingMainCurrencySelect" name="mainCurrency"
+                class="w-full select select-bordered"
+                x-model="mainCurrency"
+        >
+          <template x-for="value in currencies">
+            <option x-bind:value="value" x-text="value"></option>
+          </template>
+        </select>
+        <div class="label">
+          <span class="label-text-alt error-message"></span>
+        </div>
+      </label>
+
+      <label class="form-control">
+        <div class="label">
+          <span class="label-text">Moneda Deudas</span>
+        </div>
+        <select x-ref="buildingDebtCurrencySelect" name="debtCurrency"
+                class="w-full select select-bordered"
+                x-model="debtCurrency"
+        >
+          <template x-for="value in currencies">
+            <option x-bind:value="value" x-text="value"></option>
+          </template>
+        </select>
+        <div class="label">
+          <span class="label-text-alt error-message"></span>
+        </div>
+      </label>
+
+      <div class="justify-center gap-2 text-center form-control">
+        <span class="label-text">Monedas a mostrar al pagar</span>
+        <div class="flex flex-row gap-4">
+          <template x-for="value in currencies">
+            <label class="cursor-pointer justify-center gap-4 label">
+              <span class="label-text" x-text="value"></span>
+              <input type="checkbox" class="checkbox" x-bind:value="value"
+                     x-bind:checked="currenciesToShowAmountToPay.includes(value)"
+                     x-effect="$el.checked=currenciesToShowAmountToPay.includes($el.value)"
+                     name="currenciesToShowAmountToPay"/>
+            </label>
+          </template>
+        </div>
+      </div>
+
+      <label class="cursor-pointer justify-center gap-4 label">
+        <span class="label-text">Redondear Pagos</span>
+        <input type="checkbox" class="checkbox" name="roundUpPayments" value="true"
+               x-bind:checked="roundUpPayments"/>
+      </label>
+
+      <div class="flex flex-row flex-wrap justify-center gap-2">
+        <label class="cursor-pointer justify-center gap-4 label">
+          <span class="label-text">Monto Fijo</span>
+          <input type="checkbox" class="checkbox" name="fixedPay"
+                 x-bind:checked="fixedPay" value="true"
+                 @click="fixedPay=!fixedPay"/>
+        </label>
+
+        <label class="justify-center form-control" x-show="fixedPay" x-transition>
+          <div class="label">
+          </div>
+          <input placeholder="Monto fijo" class="w-full input input-bordered" name="fixedPayAmount"
+                 type="number"
+                 min="1"
+                 maxlength="10"
+                 step=".01"
+                 x-init="limitInputToMaxLength($el)"
+                 x-model="fixedPayAmount"
+          />
+          <div class="label">
+            <span class="label-text-alt error-message" x-text="fixedPayAmountError"></span>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div>
+      <label class="w-full form-control">
+
+        <div class="label">
+          <span class="label-text">Configuración email</span>
+        </div>
+        <select class="w-full select select-bordered" name="emailConfig" x-model="emailConfigId">
+          {#for item in dto.emailConfigs}
+              <option value="{item.id}">{item.email}</option>
+          {/for}
+        </select>
+      </label>
+
+    </div>
+
+    <div class="label">
+      <span x-transition class="label-text-alt" x-text="generalFieldError"></span>
+    </div>
+
+    <div class="flex flex-row gap-4">
+      <button type="submit" class="btn btn-primary"
+              x-effect="
+                  let v = !(buildingId?.trim()?.length > 0 && buildingName?.trim()?.length > 0);
+                  $el.disabled=v;
+                  "
+              @click="$dispatch('event-building-form-errors-reset')">
+
+        {dto.isEdit ? m:main.action.edit : m:main.action.create}
+      </button>
+
+      <button type="button" class="btn btn-accent"
+              @click.prevent="">
+        {m:main.action.cancel}
+      </button>
+      <img class="htmx-indicator white-filter" src="/assets/bars.svg" alt="spinner">
+    </div>
+
+  </form>
+
+  {#if dto.extraChargeDto}
+  <hr class="w-3/4 center">
+
+  {#include ExtraChargeController/form dto = dto.extraChargeDto /}
+  {/if}
+
+  {#if dto.reserveFundDto}
+  <hr class="w-3/4 center">
+  {#include ReserveFundController/form dto = dto.reserveFundDto /}
+  {/if}
+
+</div>
+

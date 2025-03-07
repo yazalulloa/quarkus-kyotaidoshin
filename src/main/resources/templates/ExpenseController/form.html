@@ -1,0 +1,140 @@
+{@com.yaz.kyotaidoshin.api.domain.response.expense.ExpenseInitFormDto dto}
+
+<details open>
+  <summary class="pb-2">
+    <div>
+      <div class="flex flex-row flex-wrap justify-center gap-6">
+        <div class="text-center">Gastos: <span id="expenses-form-counter">{dto.expensesCount}</span></div>
+        <div class="text-center">Gastos comunes totales: <span
+            id="expenses-total-common">{dto.totalCommonExpenses}</span></div>
+        <div class="text-center">Gastos no comunes totales: <span
+            id="expenses-total-uncommon">{dto.totalUnCommonExpenses}</span></div>
+      </div>
+      <div class="flex flex-row flex-wrap justify-center gap-6">
+        <div class="text-center">Gastos comunes totales + fondos de reserva: <span
+            id="expenses-total-common-plus-reserve-funds">{dto.totalCommonExpensesPlusReserveFunds}</span>
+        </div>
+        <div class="text-center">Gastos no comunes totales + fondos de reserva: <span
+            id="expenses-total-uncommon-plus-reserve-funds">{dto.totalUnCommonExpensesPlusReserveFunds}</span>
+        </div>
+      </div>
+    </div>
+  </summary>
+
+  {#include FragmentController/expenseTypes /}
+
+  <div class="flex flex-row flex-wrap justify-center gap-6 overflow-hidden px-2"
+       x-data="{ is_edit: false, restartKey: '{dto.key}', key: '{dto.key}', description: '', descriptionFieldError: '', amount: '', amountFieldError: '',
+              currency: '', expenseType: '', generalFieldError: ''
+             }"
+       @event-expense-form-restart-after-deletion="
+              let v = $event.detail?.key?.trim();
+              if (v && v === key) {
+                $dispatch('event-expense-form-reset');
+              }
+             "
+       @event-expense-form-clean-errors="
+              generalFieldError = '';
+              descriptionFieldError = '';
+              amountFieldError = '';
+             "
+       @event-expense-form-reset="
+              description = '';
+              amount = '';
+              is_edit = false;
+              key = restartKey;
+              $dispatch('event-expense-form-clean-errors');
+             ">
+
+
+    {#include ExpenseController/grid list = dto.expenses /}
+
+
+    <form id="expenses-form"
+          class="relative top-0 h-fit"
+          x-init="scrollThroughParent($el)"
+          hx-put="{uri:ExpenseController.upsert}"
+          hx-indicator=".htmx-indicator"
+          hx-target="#expenses-form-error"
+          hx-swap="innerHTML"
+          hx-disabled-elt="this, #expenses-form * > input:not([disabled]), #expenses-form * > button:not([disabled]), #expenses-form * > select:not([disabled])">
+
+      <div id="expenses-form-error" hidden="hidden"></div>
+      <input hidden="hidden" name="key" x-model="key">
+      <input type="hidden" name="{inject:csrf.parameterName}" value="{inject:csrf.token}"/>
+
+      <label class="w-full form-control">
+        <div class="label">
+          <span class="label-text">Descripción</span>
+        </div>
+        <input required placeholder="Descripción" class="w-full input input-bordered" name="description"
+               x-model="description"/>
+        <div class="label">
+          <span class="label-text-alt error-message" x-text="descriptionFieldError"></span>
+        </div>
+      </label>
+
+      <label class="w-full form-control">
+        <div class="label">
+          <span class="label-text">Monto</span>
+        </div>
+        <input placeholder="Monto" class="w-full input input-bordered" name="amount"
+               x-model="amount"
+               type="number"
+               maxlength="20"
+               step=".01"
+               x-init="limitInputToMaxLength($el)"
+        />
+        <div class="label">
+          <span class="label-text-alt error-message" x-text="amountFieldError"></span>
+        </div>
+      </label>
+
+      <div class="flex flex-row gap-2 pt-2">
+        <label class="w-fit form-control">
+          <select name="currency"
+                  class="w-fit select select-bordered"
+                  x-model="currency"
+          >
+            <template x-for="value in currencies">
+              <option x-bind:value="value" x-text="value"></option>
+            </template>
+          </select>
+        </label>
+
+        <label class="w-fit form-control">
+          <select name="type"
+                  class="w-fit select select-bordered"
+                  x-model="expenseType">
+            <template x-for="value in expenseTypes">
+              <option x-bind:value="value" x-text="value"></option>
+            </template>
+          </select>
+        </label>
+      </div>
+
+      <div class="label">
+        <span x-transition class="label-text-alt" x-text="generalFieldError"></span>
+      </div>
+
+      <div class="flex flex-row gap-4 pt-4">
+        <button type="submit" class="btn btn-primary"
+                x-init="$watch('is_edit', value => $el.childNodes[0].nodeValue = (value ? '{m:main.action.edit}' : '{m:main.action.create}'))"
+                x-effect="
+                  let v = !(description?.trim()?.length > 0 && amount?.trim()?.length > 0);
+                  $el.disabled=v;
+                  "
+        >
+          {m:main.action.create}
+        </button>
+
+        <button type="button" class="btn btn-secondary"
+                @click.prevent="$dispatch('event-expense-form-reset')">
+          {m:main.action.clean}
+        </button>
+        <img class="htmx-indicator white-filter" src="/assets/bars.svg" alt="spinner">
+      </div>
+    </form>
+
+  </div>
+</details>

@@ -1,0 +1,168 @@
+{! This is a comment: you can extend the main.html file like this, to give your templates a common style !}
+{#include main.html}
+{! This passes a title parameter to the main template !}
+{#title}{m:main.receipts} {/title}
+
+
+{#headerContainer}
+{#fragment id=headerContainer}
+<title>{m:main.receipts}</title>
+<div class="flex flex-col gap-2 px-2 fade-me-in fade-me-out" id="header-container" hx-swap-oob="true">
+  <div id="progress-receipts" class="text-center">
+  </div>
+
+  <div class="flex flex-row flex-wrap items-center gap-2">
+    <div id="receipts-counters"></div>
+
+    {#if inject:PermissionChecker.hasReceiptsUploadBackup}
+    <form id="receipts-backup-file-uploader"
+          hx-post="{uri:ReceiptController.backupUpload}"
+          hx-encoding='multipart/form-data'
+          hx-disabled-elt="this, #receipts-backup-file-uploader * > input:not([disabled])"
+          hx-swap="none"
+          hx-trigger="send-file"
+          hx-indicator=".htmx-indicator"
+          x-data="{ file: ''}"
+          x-init="$watch('file', (value) => {
+            if (value) {
+              $el.dispatchEvent(new CustomEvent('send-file'));
+            }
+          })">
+
+      <label class="btn btn-outline">
+        {m:main.actions.uploadBackup}
+        <span x-data="{ filename: ''}"
+              x-bind:class="filename === '' ? 'hidden' : ''"
+              x-text="filename"
+              x-init="$watch('file', (value) => {
+            if (value && value.length > 0) {
+              filename = $el.nextElementSibling.files[0].name;
+             } else {
+              filename = '';
+             }
+          })"></span>
+        <input class="hidden"
+               type="file"
+               accept=".json.gz"
+               name="file"
+               x-model="file"
+        />
+      </label>
+
+      {#include fragments/csrf /}
+
+    </form>
+    {/if}
+
+    <div data-change-element="receipts-updater"
+         data-change-event="update-receipts">
+
+      {#include ApartmentController/buildingSelector list = buildingIds /}
+
+    </div>
+
+    <div data-change-element="receipts-updater"
+         data-change-event="update-receipts"
+         x-data="{
+        months_selected: []
+        }">
+
+      {#include FragmentController/monthDialogPicker /}
+
+    </div>
+
+    <label for="date">
+      <input class="datepicker btn btn-outline"
+             type="date"
+             name="date_input"
+             placeholder="YYYY-MM-DD"
+             x-init=""
+             x-on:change="sendEvent('receipts-updater', 'update-receipts')">
+    </label>
+
+    <div id="receipts-updater"
+         hidden="hidden"
+         hx-get="{uri:ReceiptController.search}"
+         hx-include="[name='building_input'],[name='month_input'],[name='date_input']"
+         hx-trigger="load, update-receipts delay:300ms"
+         hx-target="#receipts-table"
+         hx-swap="innerHTML"
+         hx-indicator=".htmx-indicator">
+    </div>
+
+    {#if inject:PermissionChecker.hasReceiptsWrite}
+    <form id="receipt-file-uploader"
+          hx-post="{uri:ReceiptController.createFromFile}"
+          hx-encoding='multipart/form-data'
+          hx-disabled-elt="this, #receipt-file-uploader * > input:not([disabled])"
+          hx-swap="none"
+          hx-trigger="send-file"
+          hx-indicator=".htmx-indicator"
+          x-data="{ file: ''}"
+          x-on:htmx:xhr:progress="console.debug('x-on:htmx:xhr:progress ', $event.detail)"
+          x-init="
+          $watch('file', (value) => {
+            if (value) {
+              $el.dispatchEvent(new CustomEvent('send-file'));
+            }
+           })
+       ">
+
+      <label class="btn btn-outline">
+        {m:main.receipts.uploadFile}
+        <span x-data="{ filename: ''}"
+              x-bind:class="filename === '' ? 'hidden' : ''"
+              x-text="filename"
+              x-init="$watch('file', (value) => {
+            if (value && value.length > 0) {
+              filename = $el.nextElementSibling.files[0].name;
+             } else {
+              filename = '';
+             }
+          })"></span>
+        <input class="hidden"
+               type="file"
+               accept=".xlsx,.xls"
+               name="file"
+               x-model="file"
+        />
+      </label>
+
+      {#include fragments/csrf /}
+
+
+    </form>
+    {/if}
+
+    <div class="h-0 w-0">
+      <div id="new-receipt-file-dialog"></div>
+    </div>
+  </div>
+</div>
+{/fragment}
+{/headerContainer}
+
+
+{#container}
+{#fragment id=container}
+<div id="container" class="flex flex-col gap-1 fade-me-in fade-me-out" hx-swap-oob="true"
+     x-data="{
+     send_dialog_receipt_key: '', send_dialog_building: '', send_dialog_date: '', send_dialog_year: 0, send_dialog_month: '',
+     send_dialog_receipt_select_all : true, send_dialog_apts: []
+     }">
+  <ul id="receipts-table">
+
+  </ul>
+  <div>
+    <img class="htmx-indicator white-filter img-medium-size center" src="/assets/bars.svg" alt="spinner">
+  </div>
+  <div hx-get="{uri:ReceiptController.sendDialog}"
+       hx-trigger="load"
+       hx-swap="outerHTML">
+
+  </div>
+</div>
+{/fragment}
+{/container}
+
+{/include}

@@ -1,0 +1,147 @@
+{! This is a comment: you can extend the main.html file like this, to give your templates a common style !}
+{#include main.html}
+{! This passes a title parameter to the main template !}
+{#title}{m:main.apartments} {/title}
+
+
+{#headerContainer}
+{#fragment id=headerContainer}
+<title>{m:main.apartments}</title>
+<div class="flex flex-col fade-me-in fade-me-out" id="header-container" hx-swap-oob="true">
+  <div class="flex flex-row flex-wrap items-center gap-2 px-2">
+    <div id="apartments-counters"></div>
+
+    {#if inject:PermissionChecker.hasApartmentsWrite}
+    <div>
+      <button
+          x-init=""
+          @click.prevent="$dispatch('event-open-apt-modal')"
+          class="btn btn-primary">
+        {m:main.apartments.newApartment}
+
+      </button>
+
+      {#include ApartmentController/formDialog buildings = buildingIds /}
+
+
+    </div>
+    {/if}
+
+
+    {#if inject:PermissionChecker.hasApartmentsUploadBackup}
+    <form id="apartments-backup-file-uploader"
+          hx-post="{uri:ApartmentController.upload}"
+          hx-encoding='multipart/form-data'
+          hx-disabled-elt="this, #apartments-backup-file-uploader * > input:not([disabled])"
+          hx-swap="none"
+          hx-trigger="send-file"
+          hx-indicator=".htmx-indicator"
+          x-data="{ file: ''}"
+          x-init="$watch('file', (value) => {
+            if (value) {
+              $el.dispatchEvent(new CustomEvent('send-file'));
+            }
+          })">
+
+      <label class="btn btn-outline">
+        {m:main.actions.uploadBackup}
+        <span x-data="{ filename: ''}"
+              x-bind:class="filename === '' ? 'hidden' : ''"
+              x-text="filename"
+              x-init="$watch('file', (value) => {
+            if (value && value.length > 0) {
+              filename = $el.nextElementSibling.files[0].name;
+             } else {
+              filename = '';
+             }
+          })"></span>
+        <input class="hidden"
+               type="file"
+               accept=".json.gz"
+               name="file"
+               x-model="file"
+        />
+      </label>
+
+      {#include fragments/csrf /}
+
+    </form>
+    {/if}
+
+    <div data-change-element="apartments-updater"
+         data-change-event="update-apartments">
+
+      <div hx-get="{uri:ApartmentController.buildingSelector}"
+           hx-trigger="load"
+           hx-swap="outerHTML">
+      </div>
+
+    </div>
+
+    <label for="apt-search-input">
+      <script>
+        function updateApt() {
+          sendEvent('apartments-updater', 'update-apartments');
+        }
+      </script>
+      <input id="apt-search-input" class="w-full max-w-xs input input-bordered"
+             type="search"
+             name="apt_search_input"
+             placeholder="{m:main.apartments.search}"
+             x-init=""
+             @event-new_apt="updateApt()"
+             @changed="updateApt()"
+             @keyup="updateApt()"
+             @search="updateApt()">
+    </label>
+
+    <div id="apartments-updater"
+         hidden="hidden"
+         hx-get="{uri:ApartmentController.search}"
+         hx-include="[name='building_input'],[name='apt_search_input']"
+         hx-trigger="load,update-apartments delay:300ms"
+         hx-target="#apartments-table"
+         hx-swap="innerHTML"
+         hx-indicator=".htmx-indicator">
+
+    </div>
+  </div>
+
+  <div class="apartment-grid-header p-2 font-bold
+
+  {#if inject:PermissionChecker.hasApartmentsWrite}
+      apartment-grid-header-with-delete
+  {#else}
+      apartment-grid-header-without-delete
+  {/if}
+">
+    <span>{m:main.apartments.th.building}</span>
+    <span>{m:main.apartments.th.apt}</span>
+    <span>{m:main.apartments.th.name}</span>
+    <span>{m:main.apartments.th.emails}</span>
+    <span>{m:main.apartments.th.aliquot}</span>
+
+    {#if inject:PermissionChecker.hasApartmentsWrite}
+    <span>{m:main.apartments.th.actions}</span>
+    {/if}
+  </div>
+</div>
+{/fragment}
+{/headerContainer}
+
+{#container}
+{#fragment id=container}
+<div id="container" class="flex flex-col gap-1 fade-me-in fade-me-out" hx-swap-oob="true">
+  <ul id="apartments-table">
+
+  </ul>
+  <div>
+    <img class="htmx-indicator white-filter img-medium-size center" src="/assets/bars.svg" alt="spinner">
+  </div>
+
+
+</div>
+{/fragment}
+{/container}
+
+{/include}

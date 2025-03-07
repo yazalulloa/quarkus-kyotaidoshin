@@ -1,0 +1,152 @@
+<dialog class="modal modal-bottom sm:modal-middle"
+        x-data="{
+        apt_selected: []
+        }"
+        @event-receipt-send-dialog-open.window="
+          $dispatch('event-set-receipt-send-dialog-apt-' + send_dialog_building.toLowerCase());
+          document.getElementById('dialog-error').innerHTML = '';
+          send_dialog_receipt_select_all = true;
+          if (!send_dialog_receipt_select_all) {
+            send_dialog_receipt_select_all = true;
+          } else {
+            apt_selected = send_dialog_apts.map(apt => apt.number);
+          }
+          $el.showModal();
+          "
+        @event-receipt-send-dialog-close.window="$el.close()"
+>
+
+  {#for item in dto.apts}
+
+  <div hidden="hidden" x-data="{
+    apts : [
+{#for apt in item.apts}
+{ number: '{apt.number}',name: '{apt.name}',},
+{/for}
+    ]}"
+       @event-set-receipt-send-dialog-apt-{item.building.toLowerCase}.window="send_dialog_apts=apts">
+  </div>
+  {/for}
+
+  <div class="p-4 modal-box">
+
+    <div class="flex flex-row justify-between">
+      <div class="h-12 w-12">
+
+      </div>
+      <h2 class="m-auto font-bold">{m:main.receipts.dialog.title.send}</h2>
+      <div>
+        <form method="dialog">
+          <button class="btn btn-circle btn-outline">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2 pb-2 text-center font-bold">
+      <div>
+        <span x-text="send_dialog_building"></span>
+      </div>
+
+      <div class="flex flex-row justify-center gap-2">
+        <span x-text="send_dialog_year"></span>
+        <span x-text="send_dialog_month"></span>
+        <span x-text="send_dialog_date"></span>
+      </div>
+    </div>
+
+    <form id="receipts-send-form-dialog"
+          class="items-center text-center"
+          hx-post="{uri:ReceiptController.sendReceiptsStart}"
+          hx-disabled-elt="this, #receipts-send-form-dialog * > input:not([disabled]), #receipts-send-form-dialog * > button:not([disabled]), #receipts-send-form-dialog * > select:not([disabled])"
+          hx-swap="none"
+          hx-indicator=".htmx-indicator">
+
+      <input type="hidden" type="text" name="key" x-bind:value="send_dialog_receipt_key">
+
+      <div id="send-receipt-dialog-csrf" hidden="hidden"></div>
+
+      <label class="form-control">
+        <div class="label">
+          <span class="label-text">{m:main.receipts.dialog.title.subject}</span>
+        </div>
+        <input type="text" class="input input-bordered"
+               name="subject"
+               maxlength="100"
+               placeholder="{m:main.receipts.dialog.title.subject}"
+               value="{m:main.receipts.title.collection.notice}"
+        />
+      </label>
+
+      <label class="form-control">
+        <div class="label">
+          <span class="label-text">{m:main.receipts.dialog.title.message}</span>
+        </div>
+        <textarea class="textarea textarea-bordered" name="msg" autocomplete="on">{m:main.receipts.title.collection.notice}</textarea>
+      </label>
+
+      <div id="send-dialog-error" hidden="hidden">
+      </div>
+
+
+      <label class="cursor-pointer justify-center gap-4 label">
+        <span class="label-text">{m:main.receipts.dialog.title.selectAll}</span>
+        <input type="checkbox" class="toggle"
+               @click="send_dialog_receipt_select_all=!send_dialog_receipt_select_all"
+               x-bind:checked="send_dialog_receipt_select_all"
+               x-effect="
+                 if (send_dialog_receipt_select_all) {
+                   apt_selected = send_dialog_apts.map(apt => apt.number);
+                 } else {
+                   apt_selected = [];
+                 }
+                 "
+        />
+      </label>
+
+      <div class="pb-2">
+        <ol class="custom-hover">
+          <template x-for="apt in send_dialog_apts">
+            <li>
+              <label class="grid justify-around gap-2 rounded-sm p-1 apt-receipt-dialog-grid">
+                <span x-text="apt.number"></span>
+                <span x-text="apt.name"></span>
+                <input type="checkbox" checked="checked" class="receipt-sent-checkbox checkbox" name="apts"
+                       @click="apt_selected.includes(apt.number) ? apt_selected = apt_selected.filter(a => a !== apt.number) : apt_selected.push(apt.number);"
+                       x-bind:checked="apt_selected.includes(apt.number)"
+                       x-bind:value="apt.number"/>
+              </label>
+            </li>
+          </template>
+        </ol>
+
+      </div>
+
+      <div id="dialog-error" hidden="hidden">
+      </div>
+
+      <div class="flex flex-row gap-4">
+        <button type="submit" class="btn btn-primary"
+                x-effect="
+                  let v = !(apt_selected?.length > 0);
+                  $el.disabled=v;
+                  ">
+          {m:main.receipts.dialog.action.send}
+        </button>
+        <button type="button" class="btn btn-secondary"
+                @click.prevent="$dispatch('event-receipt-send-dialog-close')">
+          {m:main.receipts.dialog.action.cancel}
+        </button>
+        <img class="htmx-indicator white-filter" src="/assets/bars.svg" alt="spinner">
+      </div>
+
+    </form>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>

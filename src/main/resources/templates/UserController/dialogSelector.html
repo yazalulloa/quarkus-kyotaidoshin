@@ -1,0 +1,65 @@
+<div x-data="{
+options : [
+       {#each users}
+        {
+          option: '{it.username} {it.email}',
+          value: '{it.id}',
+          picture: '{it.picture}'
+        },
+       {/each}
+],
+       selected: []
+}"
+
+     x-init="$watch('selected', value => {
+           let parentElement = $el.parentElement;
+           let elemId = parentElement.getAttribute('data-change-element');
+           let event = parentElement.getAttribute('data-change-event');
+           if (elemId && event) {
+              document.getElementById(elemId).dispatchEvent(new CustomEvent(event));
+           }
+           })">
+
+  <button class="btn btn-outline" @click.prevent="$el.nextElementSibling.showModal()">
+    <h2 class="text-center uppercase">{m:main.users}: <span x-text="selected.length"></span></h2>
+  </button>
+  <dialog class="modal modal-bottom sm:modal-middle">
+    <div class="modal-box">
+      <div class="flex flex-row justify-around gap-2">
+        <div class="flex flex-col gap-1">
+          <template x-for="option in options">
+            <label class="cursor-pointer justify-start gap-4 label">
+              <input type="checkbox" class="checkbox" name="user_input"
+                     @click="selected.includes(option.value) ? selected = selected.filter(a => a !== option.value) : selected.push(option.value);"
+                     x-bind:checked="selected.includes(option.value)"
+                     x-bind:value="option.value"/>
+              <img x-bind:src="option.picture" alt="Avatar" class="h-6 w-6 rounded-full" referrerpolicy="no-referrer">
+              <span class="label-text" x-text="option.option"></span>
+            </label>
+          </template>
+        </div>
+
+        <div class="flex flex-col justify-between">
+          <div class="mt-0 modal-action">
+            <form method="dialog">
+              <button class="btn btn-circle btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </form>
+          </div>
+
+          <button class="btn btn-outline"
+                  @click.prevent="if (selected.length > 0) selected = []">
+            {m:main.action.clean}
+          </button>
+        </div>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+</div>

@@ -1,0 +1,28 @@
+<div id="rates-historic-progress-receipts" class="w-full text-center" hx-swap-oob="beforeend">
+  <div id="{clientId}" class="flex w-full flex-row items-center justify-center gap-2 pb-2 text-center">
+    <div class="h-1 w-1"></div>
+    <div hx-ext="sse" class="w-[80%]"
+         sse-connect="{uri:RateController.historicRates(clientId)}"
+         sse-swap="rates-historic-progress"
+         sse-close="rates-historic-progress-close">
+      <div class="flex flex-col items-center gap-1 text-center">
+      <span class="text-center text-base font-bold label-text">
+        {m:main.rates.searchHistoricRates}
+      </span>
+        <progress class="progress"></progress>
+      </div>
+    </div>
+    <button class="btn-sm btn btn-circle btn-outline"
+            type="button"
+            hx-headers='{"{inject:csrf.headerName}":"{inject:csrf.token}"}'
+            hx-delete="{uri:RateController.stopHistoricRates(clientId)}"
+            hx-disabled-elt="this"
+            hx-trigger="click"
+            hx-swap="none"
+      {#insert extraAttributes}{/}>
+
+      <svg data-src="/assets/delete-cross.svg" data-cache="21600" class="h-5 w-5">
+      </svg>
+    </button>
+  </div>
+</div>

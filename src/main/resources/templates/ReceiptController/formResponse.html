@@ -1,0 +1,16 @@
+<div hidden="hidden" x-init="
+
+{#if dto.key}
+key = '{dto.key}';
+{/if}
+
+generalFieldError = '{dto.generalFieldError}';
+isError = '{dto.isError}';
+
+">
+
+</div>
+
+{#if dto.expenseCountersDto}
+{#include ExpenseController/counters dto = dto.expenseCountersDto /}
+{/if}

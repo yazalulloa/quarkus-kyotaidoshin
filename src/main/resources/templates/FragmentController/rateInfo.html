@@ -1,0 +1,13 @@
+<div id="notification-toast" hx-swap-oob="true" class="fade-me-out fade-me-in"
+     @click="$el.hidden = true"
+     x-init="
+          await sleep(3000);
+          $el.hidden = true;
+     ">
+
+  <div class="rounded-sm toast toast-transition">
+    <div role="alert" class="border-2 text-center alert border-secondary">
+      <span>{msg}</span>
+    </div>
+  </div>
+</div>

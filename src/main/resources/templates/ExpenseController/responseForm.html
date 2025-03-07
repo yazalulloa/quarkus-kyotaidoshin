@@ -1,0 +1,29 @@
+<div x-init="
+
+descriptionFieldError = '{dto.descriptionFieldError}';
+amountFieldError = '{dto.amountFieldError}';
+generalFieldError = '{dto.generalFieldError}';
+
+{#if dto.tableItem}
+$dispatch('event-expense-form-reset');
+{/if}
+
+">
+
+</div>
+
+
+{#if dto.tableItem}
+
+{#if dto.tableItem.addAfterEnd}
+<div id="expenses-table-item-grid" hx-swap-oob="beforeend">
+  {#include ExpenseController/listItem item = dto.tableItem /}
+</div>
+{#else}
+{#include ExpenseController/listItem item = dto.tableItem /}
+{/if}
+{/if}
+
+{#if dto.counters}
+{#include ExpenseController/counters dto = dto.counters /}
+{/if}

@@ -1,0 +1,119 @@
+<form id="receipts-form"
+      class="m-auto flex w-fit flex-col items-center gap-4 text-center align-middle min-w-3/5"
+      hx-put="{uri:ReceiptController.editReceipt}"
+      hx-disabled-elt="this, #receipts-form * > input:not([disabled]), #receipts-form * > button:not([disabled]), #receipts-form * > select:not([disabled])"
+      hx-indicator=".htmx-indicator"
+      hx-target="#receipt-form-error"
+      hx-swap="innerHTML"
+      x-data="{
+        generalFieldError: '',
+      }"
+      x-init="
+      buildingName = '{dto.receiptForm.buildingName}';
+      "
+      @event-receipt-form-errors-reset="
+        generalFieldError = '';
+      ">
+
+
+    <input type="hidden" name="{inject:csrf.parameterName}" value="{inject:csrf.token}"/>
+
+  </div>
+
+  <div id="receipt-form-error" hidden="hidden"></div>
+
+  <input hidden="hidden" name="key" value="{dto.receiptForm.key}">
+
+  <div class="m-auto flex w-fit flex-row flex-wrap items-center justify-center gap-6">
+
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">{m:main.receipt.title.year}</legend>
+      <label>
+        <select class="select" name="year">
+          {#for item in dto.receiptForm.years}
+          <option value="{item}"
+            {#if item == dto.receiptForm.year}
+                  selected
+            {/if}
+          >{item}</option>
+          {/for}
+        </select>
+      </label>
+    </fieldset>
+
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">{m:main.receipt.title.month}</legend>
+      <label>
+        <select class="select" name="month">
+          {#each cdi:i18NService.monthTypes}
+          <option value="{it.month}"
+            {#if dto.receiptForm.month == it.month}
+                  selected
+            {/if}
+          >{it.name}</option>
+
+          {/each}
+        </select>
+      </label>
+    </fieldset>
+
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">{m:main.receipts.title.receiptDate}</legend>
+      <input class="input"
+             type="date"
+             name="date"
+             placeholder="YYYY-MM-DD"
+             value="{dto.receiptForm.date}"
+             required/>
+    </fieldset>
+
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">{m:main.receipts.title.rate}</legend>
+      <label>
+        <select class="select" name="rateInput">
+          {#include RateController/options res = dto.receiptForm.rates /}
+        </select>
+      </label>
+    </fieldset>
+
+  </div>
+
+  <div class="label">
+    <span x-transition class="label-text-alt" x-text="generalFieldError"></span>
+  </div>
+
+  <div class="flex flex-row justify-center gap-4">
+    <button type="submit" class="btn btn-primary"
+            @click="$dispatch('event-receipt-form-errors-reset')">
+      {m:main.action.edit}
+    </button>
+    <img class="htmx-indicator white-filter" src="/assets/bars.svg" alt="spinner">
+  </div>
+
+</form>
+
+<div class="flex flex-col gap-4"
+     x-data="{
+apts: [
+{#for item in dto.apts}
+{ number: '{item.number}',name: '{item.name}',},
+{/for}
+]
+}">
+  <hr class="w-3/4 center">
+
+  {#include ExpenseController/form dto = dto.expenseDto /}
+
+  <hr class="w-3/4 center">
+
+  {#include ReserveFundController/form dto = dto.reserveFundDto /}
+
+  <hr class="w-3/4 center">
+
+  {#include ExtraChargeController/form dto = dto.extraChargeDto /}
+
+  <hr class="w-3/4 center">
+
+  {#include DebtController/form dto = dto.debtDto /}
+
+</div>

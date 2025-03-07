@@ -1,0 +1,17 @@
+<div class="min-w-3/5">
+  <div class="p-2 font-bold debt-grid base-grid-cm">
+    <span>Apt</span>
+    <span>{m:main.receipts}</span>
+    <span>Monto</span>
+    <span>{m:main.title.months}</span>
+    <span>Abono</span>
+    <span>Acciones</span>
+  </div>
+
+  <ul class="custom-hover">
+    {#for item in list}
+
+    {#include DebtController/item item=item /}
+    {/for}
+  </ul>
+</div>

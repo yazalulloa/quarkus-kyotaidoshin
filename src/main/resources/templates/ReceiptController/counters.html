@@ -1,0 +1,12 @@
+{#if dto}
+<div id="receipts-counters" class="flex flex-row gap-2 fade-me-in fade-me-out" hx-swap-oob="true">
+
+<span id="receipts-total-counter">
+  {m:main.receipts}: {dto.totalCount}
+</span>
+
+  {#if dto.queryCount != null}
+  <span id="receipts-query-count">Items: {dto.queryCount}</span>
+  {/if}
+</div>
+{/if}

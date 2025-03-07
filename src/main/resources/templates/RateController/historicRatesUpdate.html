@@ -1,0 +1,32 @@
+<div class="flex w-full flex-col items-center gap-1 text-center"
+  {#if dto.end}
+     x-init="
+           document.getElementById('rates-updater').dispatchEvent(new CustomEvent('update-rates'))
+           let id = '{dto.clientId}';
+           let elem = document.getElementById(id);
+           elem.classList.add('fade-progress');
+           elem.style.opacity = '0';
+           await sleep(3000);
+           elem.remove();
+          "
+  {/if}
+>
+  <div class="w-full flex flex-row
+
+  {#if dto.right}
+  justify-between
+  {#else}
+      justify-center
+  {/if}
+">
+    <span class="text-center text-base font-bold label-text">{dto.left}</span>
+    {#if dto.right}
+    <span class="text-center text-base font-bold label-text">{dto.right}</span>
+    {/if}
+  </div>
+  <progress class="progress"
+    {#if !dto.end}
+            value="{dto.counter}" max="{dto.size}"
+    {/if}
+  ></progress>
+</div>

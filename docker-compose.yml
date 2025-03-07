@@ -1,0 +1,43 @@
+services:
+  kyotaidoshin:
+    container_name: kyotaidoshin
+    image: kyotaidoshin:latest
+    restart: always
+    ports:
+      - "49825:49825"
+    env_file:
+      - local.env
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    environment:
+      - DOCKER_TIMEZONE=America/Caracas
+
+#  kyotaidoshin-prometheus:
+#    container_name: kyotaidoshin-prometheus
+#    image: prom/prometheus:latest
+#    restart: always
+#    ports:
+#      - "9090:9090"
+#    volumes:
+#      - ./prometheus:/etc/prometheus
+#      - prom_data:/prometheus
+#
+#  kyotaidoshin-grafana:
+#    image: grafana/grafana
+#    container_name: kyotaidoshin-grafana
+#    ports:
+#      - 3000:3000
+#    restart: unless-stopped
+#    environment:
+#      - GF_SECURITY_ADMIN_USER=admin
+#      - GF_SECURITY_ADMIN_PASSWORD=grafana
+#    volumes:
+#      - ./grafana:/etc/grafana/provisioning/datasources
+#      - grafana-storage:/var/lib/grafana
+#
+#volumes:
+#  prom_data:
+#  grafana-storage:

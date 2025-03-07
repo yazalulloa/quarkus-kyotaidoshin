@@ -1,0 +1,17 @@
+{#for item in res.results}
+
+
+{#include PermissionController/item item = item /}
+
+{/for}
+
+{#if res.lastKey != null}
+{#let nextPageUrl=uri:PermissionController.search(res.lastKey)}
+{#include fragments/next-page.html url = nextPageUrl}
+{#extraAttributes}
+{/extraAttributes}
+{/include}
+{/let}
+{/if}
+
+{#include PermissionController/counters dto = res.counters /}

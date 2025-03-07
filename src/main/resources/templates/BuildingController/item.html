@@ -1,0 +1,41 @@
+{@com.yaz.kyotaidoshin.api.domain.response.building.BuildingTableResponse$Item item}
+
+<div class="flex flex-col items-center justify-center gap-3 text-center">
+  <div class="flex flex-row flex-wrap items-center justify-center gap-3 text-center text-sm">
+    <span>{item.item.id}</span>
+    <span>{item.item.rif}</span>
+  </div>
+
+  <span>{item.item.name}</span>
+
+</div>
+
+<div class="flex flex-col items-center gap-3 text-center text-sm">
+  <span>Moneda Principal: {item.item.mainCurrency}</span>
+  <span>Moneda Deuda: {item.item.debtCurrency}</span>
+  <span>Monedas a mostrar {item.item.currenciesToShowAmountToPay}</span>
+</div>
+
+<div class="flex flex-col items-center gap-3 text-center">
+  {#if item.item.fixedPay}
+  <span>Monto fijo: {item.item.fixedPayAmount}</span>
+  {/if}
+
+  <div class="font-bold badge badge-outline {item.item.roundUpPayments ? 'badge-success' : 'badge-error'}">
+    Redondear pagos
+  </div>
+</div>
+
+<div class="flex flex-col items-center gap-3 text-center">
+  <span>Apartmentos: {item.item.aptCount}</span>
+  {#if item.item.configEmail}
+  <span>Configuracion de email: {item.item.configEmail}</span>
+  {/if}
+</div>
+
+<div class="flex flex-col gap-3">
+  <span>Creado: {item.item.createdAt.formatDate}</span>
+  {#if item.item.updatedAt}
+  <span>Actualizado: {item.item.updatedAt.formatDate}</span>
+  {/if}
+</div>

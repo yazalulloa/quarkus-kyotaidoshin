@@ -1,0 +1,56 @@
+<li id="{item.cardId}" class="fade-me-out fade-me-in"
+  {#if item.outOfBoundsUpdate}
+    hx-swap-oob="true"
+  {/if}>
+  <a class="p-1 reserve-funds-grid-item base-grid-cm"
+     x-bind:class="key === '{item.key}' ? 'active' : ''">
+
+    <div class="reserve-funds-grid-content item-grid-cm"
+         @click.prevent="
+        is_edit = true;
+        key = '{item.key}';
+        name = '{item.item.name}';
+        fund = '{item.item.fund}';
+        type = '{item.item.type}';
+        pay = '{item.item.pay}';
+        expense = '{item.item.expense}';
+        active = {item.item.active};
+        addToExpenses = {item.item.addToExpenses};
+        expenseType = '{item.item.expenseType}';
+        "
+    >
+      <div class="flex flex-col items-center gap-2 text-center">
+        <span>{item.item.name}</span>
+        <span>{item.item.fund}</span>
+      </div>
+
+      <div class="flex flex-col items-center gap-2 text-center">
+
+        <div class="font-bold badge badge-outline {item.item.active ? 'badge-success' : 'badge-error'}">
+          {item.item.pay}
+          {#if item.item.type.name == 'PERCENTAGE'}
+          %
+          {/if}
+        </div>
+
+        <div class="font-bold badge badge-outline {item.item.addToExpenses ? 'badge-success' : 'badge-error'}">
+          {item.item.expenseType}
+        </div>
+
+      </div>
+
+      <div class="flex flex-col items-center gap-1 text-center">
+        <span>{item.item.expense}</span>
+      </div>
+    </div>
+
+    {#let url=uri:ReserveFundController.delete(item.key)}
+    {#include fragments/delete-btn deleteUrl = url cardIdRef = item.cardIdRef}
+    {#extraAttributes}
+    hx-on:htmx:after-request="event.target.dispatchEvent(new CustomEvent('event-reserve-fund-form-restart-after-deletion', { bubbles: true, detail: { key: '{item.key}'} }))"
+    {/extraAttributes}
+    {/include}
+    {/let}
+
+  </a>
+</li>

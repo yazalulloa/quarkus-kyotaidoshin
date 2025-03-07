@@ -1,0 +1,90 @@
+{#include UserController/counters totalCount=res.totalCount /}
+
+{#for item in res.results}
+
+<div class="fade-me-out fade-me-in" id="{item.cardId}">
+
+  <details>
+    <summary>
+      <div
+          class="flex flex-row flex-wrap items-center justify-between gap-2 rounded-lg p-4 card bg-neutral text-neutral-content"
+          id="{item.cardId}">
+
+
+        <div class="flex flex-row items-center justify-center gap-3 text-center">
+
+          <img src="{item.user.picture}" alt="Avatar" class="h-8 w-8 rounded-full" referrerpolicy="no-referrer">
+
+          <div class="flex items-center justify-center text-center tooltip tooltip-bottom"
+               data-tip="{item.user.provider} - {item.user.providerId}">
+            <img src="{item.user.provider.logo}" class="h-8 w-8 rounded-full stroke-current fill-none"
+                 alt="{item.user.provider}"/>
+          </div>
+
+          <div class="flex flex-col items-center gap-1 text-center">
+            <div class="tooltip tooltip-bottom"
+                 data-tip="{item.user.id}">
+              <span>{item.user.email}</span>
+            </div>
+            <span>{item.user.username}</span>
+          </div>
+
+          {#if item.user.telegramChat.hasChat}
+          <div class="flex flex-col items-center gap-1 text-center">
+            <img src="/assets/telegram_logo.svg" class="h-5 w-5" alt="telegram_logo">
+            <span>{item.user.telegramChat.username}</span>
+            <span>{item.user.telegramChat.firstName}</span>
+
+          </div>
+
+          {/if}
+
+        </div>
+
+
+        <div class="grid grid-cols-2 text-sm">
+          {#each item.notificationKeys}
+          <div class="form-control">
+            <label class="cursor-pointer justify-start gap-4 label">
+              <input type="checkbox" class="checkbox checkbox-primary"
+                     hx-post="{uri:UserController.notificationEvent(it.key)}"
+                     hx-headers='{"{inject:csrf.headerName}":"{inject:csrf.token}"}'
+                     hx-swap="none"
+                     value="true"
+                     name="mode"
+                {#if item.user.notificationEvents.contains(it.event)}
+                     checked="checked"
+                {/if}
+              />
+              <span class="label-text">{it.event}</span>
+            </label>
+          </div>
+          {/each}
+
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <span>{m:main.users.description.created}: {item.user.createdAt.formatDate}</span>
+          <span>{m:main.users.description.lastLogin}: {item.user.lastLoginAt.formatDate}</span>
+        </div>
+
+        {#let url=uri:UserController.delete(item.key)}
+        {#include fragments/delete-btn deleteUrl = url cardIdRef = item.cardIdRef /}
+        {/let}
+      </div>
+    </summary>
+    <div class="flex flex-col gap-2 p-2">
+      <span class="text-sm">ID: {item.user.id}</span>
+      <span class="text-sm">{item.user.data.encodePrettily}</span>
+    </div>
+  </details>
+
+</div>
+{/for}
+
+{#if res.lastKey}
+{#let nextPageUrl=uri:UserController.search(res.lastKey)}
+{#include fragments/next-page.html url = nextPageUrl /}
+{/let}
+{/if}
+

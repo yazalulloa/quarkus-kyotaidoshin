@@ -1,0 +1,18 @@
+{#for item in res.results}
+
+
+{#include ApartmentController/item item = item /}
+
+{/for}
+
+{#if res.lastKey != null}
+{#let nextPageUrl=uri:ApartmentController.search(res.lastKey)}
+{#include fragments/next-page.html url = nextPageUrl}
+{#extraAttributes}
+hx-include="[name='building_input'],[name='apt_search_input']"
+{/extraAttributes}
+{/include}
+{/let}
+{/if}
+
+{#include ApartmentController/counters dto = res.countersDto /}

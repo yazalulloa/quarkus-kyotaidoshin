@@ -1,0 +1,15 @@
+<div id="{item.cardId}-sent-info"
+  {#if item.item.lastSent}
+     class="tooltip tooltip-bottom fade-me-in"
+     data-tip="{item.item.lastSent.formatDate}"
+  {/if}
+
+  {#if item.sentInfoOutOfBounds}
+     hx-swap-oob="true"
+  {/if}
+>
+  <div class="font-bold badge badge-outline {item.item.sent ? 'badge-success' : 'badge-error'}">
+    {item.item.sent ? m:main.receipts.state.sent : m:main.receipts.state.notSent}
+  </div>
+
+</div>

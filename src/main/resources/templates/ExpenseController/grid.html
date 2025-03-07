@@ -1,0 +1,25 @@
+<div class="md:max-w-3/5 lg:max-w-3/5">
+
+  <div class="p-2 font-bold expenses-grid-header base-grid-cm">
+    <span>Descripción</span>
+    <span>Monto</span>
+    <span>Tipo</span>
+    <span>Acciones</span>
+  </div>
+  <div id="reserve-funds-expenses-table-item-grid">
+    {#for item in list}
+    {#if item.item.reserveFund == true}
+    {#include ExpenseController/item item = item /}
+    {/if}
+    {/for}
+  </div>
+
+  <ol type="1" class="list-decimal custom-hover" id="expenses-table-item-grid">
+
+    {#for item in list}
+    {#if item.item.reserveFund == false}
+    {#include ExpenseController/listItem item = item /}
+    {/if}
+    {/for}
+  </ol>
+</div>

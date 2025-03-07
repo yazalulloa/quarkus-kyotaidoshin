@@ -1,0 +1,39 @@
+{@com.yaz.kyotaidoshin.api.domain.response.debt.DebtTableItem item}
+
+<li id="{item.cardId}"
+    class="fade-me-out fade-me-in"
+{#if item.outOfBoundsUpdate}
+    hx-swap-oob="true"
+        {/if}>
+
+    <a class="p-1 debts-grid base-grid-cm"
+       x-bind:class="key === '{item.key}' ? 'active' : ''"
+       @click.prevent="
+    key = '{item.key}'
+    open_form = true;
+    apartment = '{item.item.aptNumber} {item.item.aptName}'
+    receipts = '{item.item.receipts}'
+    amount = '{item.item.amount}'
+    months_selected = [
+      {#each item.item.months}
+        {it},
+      {/each}
+    ]
+    previousPaymentAmount = '{item.item.previousPaymentAmount}'
+    previousPaymentAmountCurrency = '{item.item.previousPaymentAmountCurrency}'
+    is_edit = true;
+    $dispatch('event-debt-form-clean-errors');
+    "
+    >
+
+        <div class="flex"><span>{item.item.aptNumber} {item.item.aptName}</span></div>
+        <div><span>{item.item.receipts}</span></div>
+        <div class="flex justify-end"><span class="text-end">{item.formatAmount}</span></div>
+
+        <span class="text-wrap">
+          {cdi:i18NService.joinMonths(item.item.months)}
+        </span>
+        <div>{item.item.formatPreviousPaymentAmount}</div>
+
+    </a>
+</li>

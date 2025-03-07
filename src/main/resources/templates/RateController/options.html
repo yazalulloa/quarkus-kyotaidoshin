@@ -1,0 +1,27 @@
+{@com.yaz.kyotaidoshin.api.domain.response.rate.RateTableResponse res}
+
+
+{#each res.results}
+<option value="{it.key}"
+        {#if res.selected && res.selected == it.item.id}
+            selected
+        {/if}
+>
+    {it.item.rate}
+    {it.item.dateOfRate}
+</option>
+{/each}
+
+{#if res.lastKey}
+    <option disabled
+            hidden="hidden"
+            hx-get="{res.lastKey}"
+            hx-trigger="intersect once"
+            hx-target="this"
+            hx-indicator=".htmx-indicator"
+            hx-swap="outerHTML">
+        <img class="htmx-indicator white-filter" src="/assets/bars.svg" alt="spinner">
+    </option>
+{/if}
+
+

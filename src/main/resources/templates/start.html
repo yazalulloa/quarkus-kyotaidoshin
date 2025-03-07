@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="{inject:i18n.get()}" data-theme="business">
+<head>
+  <title>{#insert title /}</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="/out/css/output.css" rel="stylesheet"/>
+  <script defer src="/out/js/htmx.js"></script>
+  <script defer src="/out/js/sse.js"></script>
+  <script defer src="/out/js/index.js"></script>
+  {#insert moreStyles /}
+  <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+  {#insert moreScripts /}
+</head>
+<body class="antialiased font-geist-sans text-foreground" hx-headers='{"{inject:csrf.headerName}":"{inject:csrf.token}"}'>
+<main class="flex w-full justify-center">
+  {#if flash:message}
+  <div class="alert alert-{flash:messageType ?: 'success'}">
+    {flash:message}
+  </div>
+  {/if}
+  {#insert /}
+</main>
+</body>
+</html>

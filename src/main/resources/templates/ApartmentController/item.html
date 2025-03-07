@@ -1,0 +1,40 @@
+<div class="break-all hover:bg-[#00000014]
+
+ {#if inject:PermissionChecker.hasApartmentsWrite}
+      apartment-grid-container
+  {/if}
+
+base-grid-cm fade-me-out fade-me-in"
+     id="{item.cardId}"
+     hx-swap="outerHTML"
+
+  {#if item.outOfBoundUpdate}
+     hx-swap-oob="true"
+  {/if}
+>
+  <div class="p-1 apartment-grid-content"
+       @dblclick.prevent="$dispatch('event-edit-apt-modal', '{item.formatJsonObj}')"
+  >
+    <div>{item.item.buildingId}</div>
+    <div>{item.item.number}</div>
+    <div>{item.item.name}</div>
+    <div class="flex flex-col justify-center gap-2 pt-1 pb-1">
+      {#for email in item.item.emails}
+      <span>{email}</span>
+      {/for}
+    </div>
+    <div>{item.item.aliquot}</div>
+
+  </div>
+
+  {#if inject:PermissionChecker.hasApartmentsWrite}
+  {#let url=uri:ApartmentController.delete(item.key)}
+  {#include fragments/delete-btn deleteUrl=url cardIdRef=item.cardIdRef}
+  {#extraAttributes}
+  hx-include="[name='building_input'],[name='apt_search_input']"
+  {/extraAttributes}
+  {/include}
+  {/let}
+  {/if}
+
+</div>

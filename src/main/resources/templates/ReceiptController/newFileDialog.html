@@ -1,0 +1,111 @@
+<dialog id="new-receipt-file-dialog" hx-swap-oob="true"
+        class="modal modal-bottom sm:modal-middle"
+        @event-new-receipt-file-dialog-close="$el.close()"
+        x-init="$el.showModal()">
+  <div class="p-4 modal-box">
+    <div class="flex flex-row justify-between">
+      <div class="h-12 w-12">
+
+      </div>
+      <h2 class="m-auto font-bold">{m:main.receipts.newReceipt}</h2>
+      <div>
+        <form method="dialog">
+          <button class="btn btn-circle btn-outline">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <form id="new-receipt-file-form-dialog"
+          class="flex flex-col gap-1 [&>*]:w-full items-center"
+          hx-post="{uri:ReceiptController.create}"
+          hx-disabled-elt="this, #new-receipt-file-form-dialog * > input:not([disabled]), #new-receipt-file-form-dialog * > button:not([disabled]), #new-receipt-file-form-dialog * > select:not([disabled])"
+          hx-swap="none"
+          hx-indicator=".htmx-indicator">
+
+      <h3 class="text-center" x-init="$el.parentElement.parentElement.parentElement.parentElement.showModal()">{dto.fileName}</h3>
+
+      <input type="hidden" name="{inject:csrf.parameterName}" value="{inject:csrf.token}"/>
+      <input type="hidden" name="data" value="{dto.data}"/>
+
+      <label class="form-control">
+        <div class="label">
+          <span class="label-text">{m:main.building}</span>
+        </div>
+        <select class="w-full select select-bordered" name="building">
+          {#each dto.buildings}
+          <option value="{it}"
+            {#if dto.buildingName && dto.buildingName == it}
+                  selected
+            {/if}
+          >{it}</option>
+          {/each}
+        </select>
+      </label>
+
+      <label class="form-control">
+        <div class="label">
+          <span class="label-text">{m:main.receipt.title.year}</span>
+        </div>
+        <select class="w-full select select-bordered" name="year">
+          {#each dto.years}
+          <option value="{it}"
+            {#if dto.year == it}
+                  selected
+            {/if}
+          >{it}</option>
+          {/each}
+        </select>
+      </label>
+
+      <label class="form-control">
+        <div class="label">
+          <span class="label-text">{m:main.receipt.title.month}</span>
+        </div>
+        <select class="w-full select select-bordered" name="month">
+          {#each cdi:i18NService.monthTypes}
+          <option value="{it.month}"
+            {#if dto.month && dto.month == it.month}
+                  selected
+            {/if}
+          >{it.name}</option>
+
+          {/each}
+        </select>
+      </label>
+
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">{m:main.receipts.title.receiptDate}</legend>
+        <input type="date" class="input w-full" placeholder="YYYY-MM-DD" name="date" value="{dto.date}" required/>
+      </fieldset>
+
+      <label class="form-control">
+        <div class="label">
+          <span class="label-text">{m:main.receipts.title.rate}</span>
+        </div>
+        <select class="w-full select select-bordered" name="rateInput">
+          {#include RateController/options res = dto.rates /}
+        </select>
+      </label>
+
+      <div class="flex flex-row gap-4 pt-3">
+        <button type="submit" class="btn btn-primary">
+          {m:main.receipts.action.save}
+        </button>
+        <button type="button" class="btn btn-secondary"
+                @click.prevent="$dispatch('event-new-receipt-file-dialog-close')">
+          {m:main.receipts.action.cancel}
+        </button>
+        <img class="htmx-indicator white-filter" src="/assets/bars.svg" alt="spinner">
+      </div>
+    </form>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
+

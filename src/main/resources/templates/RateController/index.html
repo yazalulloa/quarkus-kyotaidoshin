@@ -1,0 +1,97 @@
+{! This is a comment: you can extend the main.html file like this, to give your templates a common style !}
+{#include main.html}
+{! This passes a title parameter to the main template !}
+{#title}{m:main.rates} {/title}
+
+{#headerContainer}
+{#fragment id=headerContainer}
+<title>{m:main.rates}</title>
+<div class="fade-me-in fade-me-out" id="header-container" hx-swap-oob="true">
+  <div id="rates-historic-progress-receipts" class="text-center">
+  </div>
+  <div class="flex flex-row flex-wrap items-center gap-2 px-2">
+    <div id="rates-counters"></div>
+
+    {#if inject:PermissionChecker.hasRatesWrite}
+    <button class="btn btn-primary"
+            hx-get="{uri:RateController.startHistoricRates}"
+            hx-disabled-elt="this"
+            hx-indicator=".htmx-indicator"
+            hx-swap="none">
+      {m:main.rates.historicRates}
+    </button>
+    {/if}
+
+    <div id="rates-updater"
+         hidden="hidden"
+         hx-get="{uri:RateController.search}"
+         hx-include="[name='date_input'],[name='currency_input'],[name='sort_order']"
+         hx-trigger="load,update-rates delay:500ms"
+         hx-target="#rates-table"
+         hx-swap="innerHTML"
+         hx-indicator=".htmx-indicator">
+
+    </div>
+
+    <label>
+      <input class="datepicker btn btn-outline"
+             type="date"
+             name="date_input"
+             placeholder="YYYY-MM-DD"
+             x-init=""
+             x-on:change="sendEvent('rates-updater', 'update-rates')">
+    </label>
+
+    <div data-change-element="rates-updater"
+         data-change-event="update-rates">
+
+      {#include RateController/currencyPicker currencies = currencies /}
+    </div>
+
+    <label class="form-control">
+      <select class="w-fit max-w-xs select btn-outline" name="sort_order"
+              x-init=""
+              x-on:change="sendEvent('rates-updater', 'update-rates')">
+        <option>DESC</option>
+        <option>ASC</option>
+      </select>
+    </label>
+  </div>
+  <div class="base-grid-cm p-2 font-bold
+
+{#if inject:PermissionChecker.hasRatesWrite}
+      grid-cols-6
+  {#else}
+      grid-cols-5
+  {/if}
+
+">
+    <div>ID</div>
+    <div>Monedas</div>
+    <div>Tasa</div>
+    <div>Fecha</div>
+    <div>Creado</div>
+
+    {#if inject:PermissionChecker.hasRatesWrite}
+    <div>Acciones</div>
+    {/if}
+  </div>
+</div>
+{/fragment}
+{/headerContainer}
+
+
+{#container}
+{#fragment id=container}
+<div id="container" class="flex flex-col gap-1 fade-me-in fade-me-out" hx-swap-oob="true">
+  <div id="rates-table">
+
+  </div>
+  <div>
+    <img class="htmx-indicator white-filter img-medium-size center" src="/assets/bars.svg" alt="spinner">
+  </div>
+</div>
+{/fragment}
+{/container}
+
+{/include}

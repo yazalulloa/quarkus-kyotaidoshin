@@ -1,0 +1,95 @@
+{#include SessionController/counters totalCount = res.totalCount /}
+
+{#for item in res.results}
+<div id="{item.cardId}"
+     class="flex flex-row flex-wrap items-center justify-between gap-2 rounded-lg p-4 fade-me-out fade-me-in card bg-neutral text-neutral-content">
+
+  <div class="flex flex-row items-center gap-4 text-center">
+    <div class="flex flex-row gap-4">
+      {#if item.token.user.picture}
+      <img src="{item.token.user.picture}" alt="Avatar" class="h-10 w-10 rounded-full"
+           referrerpolicy="no-referrer">
+      {/if}
+
+      {#if item.token.user.provider.logo}
+      <div class="flex items-center justify-center text-center tooltip tooltip-bottom"
+           data-tip="{item.token.user.provider} - {item.token.user.providerId}">
+        <img src="{item.token.user.provider.logo}" class="h-10 w-10 rounded-full stroke-current fill-none"
+             alt="{item.token.user.provider}"/>
+      </div>
+      {/if}
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <div class="tooltip tooltip-bottom"
+           data-tip="{item.token.user.id}">
+        <span>{item.token.user.email}</span>
+      </div>
+
+      <span>{item.token.user.username}</span>
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <span>{item.token.id}</span>
+
+    <div
+
+      {#if item.token.refreshToken}
+        class="tooltip tooltip-bottom"
+        data-tip="{item.token.refreshToken}"
+      {/if}
+    >
+      <div
+
+          class="badge
+  {#if item.token.refreshToken}
+  badge-success
+  {#else}
+  badge-error
+  {/if}
+">
+        refresh
+      </div>
+    </div>
+  </div>
+
+
+  <div class="flex flex-col gap-2">
+    <span>{m:main.sessions.description.createdAt}: {item.token.createdAt.formatDate}</span>
+    <span>{m:main.sessions.description.expireAt}: {item.token.expiresIn.fromEpoch}</span>
+    <span>{item.tokenDuration}</span>
+    {#if item.token.updatedAt}
+    <span hidden="hidden">Actualizado: {item.token.updatedAt.formatDate}</span>
+    {/if}
+  </div>
+
+  <div class="flex flex-col gap-2">
+
+    <button class="btn-sm btn btn-circle btn-outline btn-success"
+            type="button"
+            hx-put="{uri:SessionController.expires(item.key)}"
+            hx-headers='{"{inject:csrf.headerName}":"{inject:csrf.token}"}'
+            hx-swap="none"
+            hx-indicator=".htmx-indicator"
+            hx-disabled-elt="this"
+            hx-trigger="mousedown">
+      <svg data-src="/assets/edit_icon.svg" class="h-5 w-5"></svg>
+    </button>
+
+    {#if inject:PermissionChecker.hasSessionsWrite}
+    {#let url=uri:SessionController.delete(item.key)}
+    {#include fragments/delete-btn deleteUrl = url cardIdRef = item.cardIdRef /}
+    {/let}
+    {/if}
+  </div>
+
+</div>
+
+{/for}
+
+{#if res.lastKey != null}
+{#let nextPageUrl=uri:SessionController.search(res.lastKey)}
+{#include fragments/next-page.html url = nextPageUrl /}
+{/let}
+{/if}

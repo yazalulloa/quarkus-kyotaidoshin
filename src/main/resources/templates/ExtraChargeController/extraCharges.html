@@ -1,0 +1,13 @@
+<div class="min-w-3/5">
+  <div class="p-2 font-bold extra-charges-grid base-grid-cm">
+    <span>Descripción</span>
+    <span>Monto</span>
+    <span>{m:main.apartments}</span>
+    <span>Acciones</span>
+  </div>
+
+  {#for item in extraCharges}
+
+  {#include ExtraChargeController/item item=item /}
+  {/for}
+</div>

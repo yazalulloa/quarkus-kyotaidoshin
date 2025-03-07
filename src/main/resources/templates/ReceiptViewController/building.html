@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AVISO DE COBRO {dto.building.name} {dto.monthStr.toUpperCase} {dto.receipt.date}</title>
+  <style>
+    /* Override page size, and set page margin */
+    @page {
+      margin: 1cm;
+    }
+
+    @media print {
+      font-size: 10pt;
+
+      table {
+        page-break-inside: avoid;
+      }
+    }
+
+    .receipt-table {
+      width: 100%;
+      text-align: center;
+    }
+
+    .receipt-body {
+      background-color: white;
+      color: black;
+      padding: 0;
+    }
+
+    .title-center {
+      text-align: center
+    }
+
+    .building-row-left-content {
+      /*text-align: left;*/
+    }
+
+    .building-row-right-content {
+      /*text-align: right;*/
+    }
+
+  </style>
+</head>
+<body>
+<div class="receipt-body">
+
+  <h4 class="title-center"><strong>AVISO DE COBRO</strong></h4>
+  <p>{dto.building.name}</p>
+  <p>{dto.building.rif}</p>
+  <p>MES A PAGAR: {dto.monthStr.toUpperCase}</p>
+  <p>{dto.receipt.date}</p>
+
+  {#let showMultipleCurrenciesAmountToPay=dto.building.showMultipleCurrenciesAmountToPay}
+
+  {#if showMultipleCurrenciesAmountToPay}
+  <p>TASA DE CAMBIO USD: {dto.rate.formatRate}</p>
+  <p>FECHA DE TASA DE CAMBIO: {dto.rate.dateOfRate}</p>
+  {/if}
+
+  <br></br>
+
+  <p>LISTADO A PAGAR</p>
+  <table class="receipt-table">
+    <thead>
+    <tr>
+      <th>APTO</th>
+      <th>PROPIETARIO</th>
+
+      {#if showMultipleCurrenciesAmountToPay}
+      {#for currency in dto.building.currenciesToShowAmountToPay}
+      <th>MONTO {currency}</th>
+      {/for}
+      {#else}
+      <th>MONTO</th>
+      {/if}
+    </tr>
+    </thead>
+    <tbody>
+    {#for aptTotal in dto.aptTotals}
+    <tr>
+      <td class="building-row-left-content">{aptTotal.number}</td>
+      <td class="building-row-left-content">{aptTotal.name}</td>
+
+      {#if showMultipleCurrenciesAmountToPay}
+
+      {#for currency in dto.building.currenciesToShowAmountToPay}
+      {#for amount in aptTotal.amounts}
+      {#if currency.equals(amount.currency)}
+      <td class="building-row-right-content">{amount.format}</td>
+      {/if}
+      {/for}
+      {/for}
+
+      {#else}
+      {#for amount in aptTotal.amounts}
+      {#if dto.building.mainCurrency.equals(amount.currency)}
+      <td class="building-row-right-content">{amount.format}</td>
+      {/if}
+      {/for}
+
+      {/if}
+    </tr>
+    {/for}
+    </tbody>
+  </table>
+
+  {/let}
+
+  <br></br>
+  <p>TOTAL: {dto.apartmentsTotal}</p>
+</div>
+</body>
+</html>

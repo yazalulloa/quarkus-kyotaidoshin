@@ -1,0 +1,34 @@
+{! This is a comment: you can extend the main.html file like this, to give your templates a common style !}
+{#include main.html}
+{! This passes a title parameter to the main template !}
+{#title}{m:main.users} {/title}
+
+
+{#headerContainer}
+{#fragment id=headerContainer}
+<title>{m:main.users}</title>
+<div class="flex flex-row flex-wrap items-center gap-2 px-2 fade-me-in fade-me-out" id="header-container"
+     hx-swap-oob="true">
+  <div id="users-counters"></div>
+</div>
+{/fragment}
+{/headerContainer}
+
+
+{#container}
+{#fragment id=container}
+<div id="container" class="flex flex-col gap-1 p-2 fade-me-in fade-me-out" hx-swap-oob="true">
+  <div hx-get="{uri:UserController.search}"
+       hx-indicator=".htmx-indicator"
+       hx-trigger="load"
+       hx-swap="outerHTML">
+
+  </div>
+  <div>
+    <img class="htmx-indicator white-filter img-medium-size center" src="/assets/bars.svg" alt="spinner">
+  </div>
+</div>
+{/fragment}
+{/container}
+
+{/include}

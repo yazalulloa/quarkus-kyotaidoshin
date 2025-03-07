@@ -1,0 +1,41 @@
+{! This is a comment: you can extend the main.html file like this, to give your templates a common style !}
+{#include main.html}
+{! This passes a title parameter to the main template !}
+{#title}{m:main.buildings.newBuilding} {/title}
+
+
+{#headerContainer}
+{#fragment id=headerContainer}
+<title>{m:main.buildings.newBuilding}</title>
+<div class="flex flex-row items-center justify-between p-2 px-6 text-center bg-base-100 fade-me-in fade-me-out" id="header-container" hx-swap-oob="true">
+
+
+  {#include fragments/backBtn backUrl = uri:BuildingController.index /}
+
+  <h2><strong>{m:main.buildings.newBuilding}</strong></h2>
+  <div>
+
+  </div>
+</div>
+{/fragment}
+{/headerContainer}
+
+{#container}
+{#fragment id=container}
+<div id="container" hx-swap-oob="true" class="h-full p-4">
+
+  <div
+      hx-get="{uri:BuildingController.form('new')}"
+      hx-disabled-elt="this"
+      hx-indicator=".htmx-indicator"
+      hx-trigger="load"
+      hx-swap="outerHTML">
+    <img class="htmx-indicator white-filter img-medium-size center" src="/assets/bars.svg" alt="spinner">
+  </div>
+
+  <div hidden="hidden" id="building-info"></div>
+</div>
+{/fragment}
+{/container}
+
+{/include}

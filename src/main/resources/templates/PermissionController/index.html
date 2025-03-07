@@ -1,0 +1,58 @@
+{! This is a comment: you can extend the main.html file like this, to give your templates a common style !}
+{#include main.html}
+{! This passes a title parameter to the main template !}
+{#title}{m:main.permissions} {/title}
+
+
+{#headerContainer}
+{#fragment id=headerContainer}
+<title>{m:main.permissions}</title>
+<div class="flex flex-col fade-me-in fade-me-out" id="header-container" hx-swap-oob="true">
+  <div class="flex flex-row flex-wrap items-center gap-2 px-2">
+    <div id="permissions-counters"></div>
+
+    <div data-change-element="permissions-updater"
+         data-change-event="update-permissions">
+      {#include PermissionController/dialogSelector /}
+    </div>
+
+    <div data-change-element="permissions-updater"
+         data-change-event="update-permissions">
+      {#include UserController/dialogSelector users=users /}
+    </div>
+
+    <div id="permissions-updater"
+         hidden="hidden"
+         hx-get="{uri:PermissionController.search}"
+         hx-trigger="load,update-permissions delay:300ms,after-update"
+         hx-target="#permissions-table"
+         hx-include="[name='permission_type_input'],[name='user_input']"
+         hx-swap="innerHTML"
+         hx-indicator=".htmx-indicator">
+
+    </div>
+
+
+    {#include PermissionController/form /}
+
+  </div>
+</div>
+{/fragment}
+{/headerContainer}
+
+{#container}
+{#fragment id=container}
+<div id="container" class="flex flex-col gap-1 fade-me-in fade-me-out" hx-swap-oob="true">
+  <ol id="permissions-table">
+
+  </ol>
+  <div>
+    <img class="htmx-indicator white-filter img-medium-size center" src="/assets/bars.svg" alt="spinner">
+  </div>
+
+
+</div>
+{/fragment}
+{/container}
+
+{/include}

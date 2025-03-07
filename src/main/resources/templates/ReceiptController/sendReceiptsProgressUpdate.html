@@ -1,0 +1,67 @@
+{#if true}
+
+<div x-init="
+building = '{progressUpdate.building}';
+month = '{progressUpdate.month}';
+date = '{progressUpdate.date}';
+counter = '{progressUpdate.counter}';
+size = '{progressUpdate.size}';
+error = '{progressUpdate.error}';
+apt = '{progressUpdate.apt}';
+aptName = '{progressUpdate.aptName}';
+from = '{progressUpdate.from}';
+to = '{progressUpdate.to}';
+
+ {#if progressUpdate.isFinished}
+           let id = 'sse-receipt-progress-bar-{progressUpdate.clientId}';
+           let elem = document.getElementById(id);
+           elem.classList.add('fade-out');
+           doAfterDelay(2000, () => elem.remove());
+ {/if}
+">
+
+</div>
+
+{#else}
+<div class="flex w-full flex-col items-center gap-1 text-center text-base font-bold"
+
+  {#if progressUpdate.isFinished}
+     x-init="
+           let id = 'sse-receipt-progress-bar-{progressUpdate.clientId}';
+           let elem = document.getElementById(id);
+           elem.classList.add('fade-out');
+           doAfterDelay(2000, () => elem.remove());
+"
+  {/if}
+>
+  <div class="flex w-full flex-row justify-around gap-1">
+    <span>{progressUpdate.building}</span>
+    <span>{progressUpdate.month}</span>
+    <span>{progressUpdate.date}</span>
+    <span>{progressUpdate.counter}/{progressUpdate.size}</span>
+  </div>
+
+  {#if progressUpdate.error != null}
+  <span class="text-center">{progressUpdate.error}</span>
+  {#else}
+
+  {/if}
+
+  {#if progressUpdate.apt != null}
+
+  <div class="flex w-full flex-row justify-around gap-1">
+    <span>APT: {progressUpdate.apt} {progressUpdate.aptName}</span>
+    <span>{progressUpdate.from} -> {progressUpdate.to}</span>
+  </div>
+
+  {/if}
+
+  <progress class="progress" value="{progressUpdate.counter}" max="{progressUpdate.size}"></progress>
+</div>
+{/if}
+
+{#if progressUpdate.item != null}
+
+{#include ReceiptController/sentInfo item=progressUpdate.item  /}
+
+{/if}
