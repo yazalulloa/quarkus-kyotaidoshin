@@ -138,29 +138,29 @@ public class PoiUtil {
       final var count = CharMatcher.is(',').countIn(str);
       if (count == 1) {
         return str.replace(",", ".");
-      } else {
-        return str.replace(",", "");
       }
+
+      return str.replace(",", "");
     }
 
     if (comma == -1) {
       final var count = CharMatcher.is('.').countIn(str);
       if (count == 1) {
         return str;
-      } else {
-        if (point == str.length() - 3) {
-          throw new RuntimeException("INVALID_AMOUNT");
-        }
-
-        return str.replace("\\.", "");
       }
+
+      if (point == str.length() - 3) {
+        throw new RuntimeException("INVALID_AMOUNT");
+      }
+
+      return str.replace("\\.", "");
     }
 
     if (point > comma) {
       return str.replace(",", "");
-    } else {
-      return str.replace("\\.", "").replace(",", ".");
     }
+    
+    return str.replace("\\.", "").replace(",", ".");
   }
 
 

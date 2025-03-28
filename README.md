@@ -1,4 +1,4 @@
-# condo-manager
+# kyotaidoshin-quarkus
 
 Project to manage building receipts and expenses.
 

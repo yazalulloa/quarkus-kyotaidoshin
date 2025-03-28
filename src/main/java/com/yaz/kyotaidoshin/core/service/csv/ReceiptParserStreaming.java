@@ -61,10 +61,7 @@ public class ReceiptParserStreaming extends ReceiptParserAbstractImpl {
               case 1:
                 debts.addAll(debts(poiPage));
                 break;
-              case 2:
-                extraCharges.addAll(extraCharges(poiPage));
-                break;
-              case 4:
+              case 2, 4:
                 extraCharges.addAll(extraCharges(poiPage));
                 break;
               default:

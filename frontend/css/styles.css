@@ -107,6 +107,10 @@ textarea, input {
 /*  color: hsl(var(--foreground));*/
 /*}*/
 
+.asd {
+  color: black;
+}
+
 
 .htmx-indicator {
   opacity: 0;

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.yaz.kyotaidoshin.util.StringUtil;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import lombok.Builder;
@@ -56,4 +57,18 @@ public record Debt(
 
   }
 
+  public record Months(
+      int amount,
+      List<YearWithMonths> months
+  ) {
+
+  }
+
+  public record YearWithMonths(
+      int year,
+      List<Integer> months
+
+  ) {
+
+  }
 }
